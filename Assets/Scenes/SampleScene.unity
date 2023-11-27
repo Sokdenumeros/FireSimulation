@@ -338,8 +338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53dec8fed56589a41ae6319852c0a877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filename: output.180.200.200.raw
-  data: []
+  filename: ../output.180.200.200.raw
   dimx: 0
   dimy: 0
   dimz: 0
