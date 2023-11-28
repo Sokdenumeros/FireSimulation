@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 public class DataLoader : MonoBehaviour
 {
+    LinkedList<float> timeList;
     LinkedList<float[]> dataList;
     public string filename;
+    public string pre;
+    public string post;
     float[] data;
     public int dimx;
     public int dimy;
@@ -17,27 +20,31 @@ public class DataLoader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        dataList = new LinkedList<float[]>;
-        //readCSV(filename);
-        //readBinaryAsync(filename);
+        dataList = new LinkedList<float[]>();
+        //Initialize the first 3 elements of the list by doing readBinary(); dataList.AddLast(data); timeList.AddLast(0.0f); ...
+
         readBinary(filename);
         instObjects();
-        //Debug.Log("Temp: " + data[102*dimy*dimx+101*dimx+100]);
+    }
+
+    private void newTimeData(){
+        dataList.AddLast(dataList.First.Value);
+        dataList.RemoveFirst();
+        float time = timeList.First.Value+1.5f;
+        timeList.RemoveFirst();
+        timeList.AddLast(time);
+        Task.Run( () => readBinarytoList(pre+time.ToString("0.0")+post) );
     }
 
     //Try to load into this list so I can check if Last is passing by reference.
     private void readBinarytoList(string filePath)
     {
         string[] values = filePath.Split(".");
-        dimx = int.Parse(values[values.Length - 2]);
-        dimy = int.Parse(values[values.Length - 3]);
-        dimz = int.Parse(values[values.Length - 4]);
         if (File.Exists(filePath))
         {
             using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
             {
-                dataList.AddLast(new float[dimx * dimy * dimz]);
-                float[] data = dataList.Last;
+                float[] data = dataList.Last.Value;
                 for (int i = 0; i < data.Length; ++i) data[i] = reader.ReadSingle();
             }
         }
@@ -50,7 +57,7 @@ public class DataLoader : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if(Time.time) Task.Run(() => readBinarytoList(filename));
+        //if(Time.time > timeList.First.Value) newTimeData();
     }
 
     private void readBinary(string filePath)
@@ -90,6 +97,7 @@ public class DataLoader : MonoBehaviour
                         me = o.GetComponent<MeshRenderer>();
                         mat = me.material;
                         //mat.color = Color.red;//Color.Lerp(Color.red,Color.yellow,(data[z*dimy*dimx+y*dimx+x]-270)/1000);
+                        //should never be above 1, for some reason the ronan example has values e+16
                         mat.color = new Color(1, 0, 0, exp);
                         //Debug.Log("Data: " + data[z*dimy*dimx+y*dimx+x]);
                         //Debug.Log("Expression: " + exp);
