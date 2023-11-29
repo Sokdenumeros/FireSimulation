@@ -6,24 +6,44 @@ using System.Threading.Tasks;
 
 public class DataLoader : MonoBehaviour
 {
+    //OLD VARIABLES
+    public string filename;
+
+
     LinkedList<float> timeList;
     LinkedList<float[]> dataList;
-    public string filename;
+
     public string pre;
     public string post;
+
     float[] data;
     public int dimx;
     public int dimy;
     public int dimz;
+
     public GameObject fireParticle;
 
     // Start is called before the first frame update
     void Start()
     {
         dataList = new LinkedList<float[]>();
-        //Initialize the first 3 elements of the list by doing readBinary(); dataList.AddLast(data); timeList.AddLast(0.0f); ...
+        timeList = new LinkedList<float>();
 
-        readBinary(filename);
+        timeList.AddLast(0.0f);
+        readBinary(pre+timeList.Last.Value.ToString("0.0").Replace(',', '.')+post );
+        dataList.AddLast(data);
+
+        timeList.AddLast(0.5f);
+        readBinary(pre+timeList.Last.Value.ToString("0.0").Replace(',', '.')+post );
+        dataList.AddLast(data);
+
+        timeList.AddLast(1.0f);
+        readBinary(pre+timeList.Last.Value.ToString("0.0").Replace(',', '.')+post );
+        dataList.AddLast(data);
+        
+        data = dataList.First.Value;
+
+        //readBinary(filename);
         instObjects();
     }
 
@@ -33,7 +53,13 @@ public class DataLoader : MonoBehaviour
         float time = timeList.First.Value+1.5f;
         timeList.RemoveFirst();
         timeList.AddLast(time);
-        Task.Run( () => readBinarytoList(pre+time.ToString("0.0")+post) );
+        data = dataList.First.Value;
+
+        Object[] allObjects = Object.FindObjectsOfType(typeof(GameObject));
+        foreach(GameObject obj in allObjects) if(obj.transform.name.StartsWith("FireParticle")) Destroy(obj);
+
+        instObjects();
+        Task.Run( () => readBinarytoList(pre+time.ToString("0.0").Replace(',', '.')+post) );
     }
 
     //Try to load into this list so I can check if Last is passing by reference.
@@ -57,7 +83,7 @@ public class DataLoader : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if(Time.time > timeList.First.Value) newTimeData();
+        if(Time.time > timeList.First.Value) newTimeData();
     }
 
     private void readBinary(string filePath)
@@ -86,21 +112,24 @@ public class DataLoader : MonoBehaviour
         MeshRenderer me;
         Material mat;
         float exp;
-        for (int z = 0; z < dimz; z += 3)
-            for (int y = 0; y < dimy; y += 3)
-                for (int x = 0; x < dimx; x += 3)
+        for (int z = 0; z < dimz; z += 1)
+            for (int y = 0; y < dimy; y += 1)
+                for (int x = 0; x < dimx; x += 1)
                 {
-                    exp = (data[z * dimy * dimx + y * dimx + x] - 300) / 1000;
+                    exp = (data[z * dimy * dimx + y * dimx + x] - 300) / 1300;
                     if (exp > 0)
                     {
                         o = Instantiate(fireParticle, new Vector3(x, z, y) / 100, Quaternion.identity);
                         me = o.GetComponent<MeshRenderer>();
                         mat = me.material;
-                        //mat.color = Color.red;//Color.Lerp(Color.red,Color.yellow,(data[z*dimy*dimx+y*dimx+x]-270)/1000);
+                        
                         //should never be above 1, for some reason the ronan example has values e+16
-                        mat.color = new Color(1, 0, 0, exp);
-                        //Debug.Log("Data: " + data[z*dimy*dimx+y*dimx+x]);
-                        //Debug.Log("Expression: " + exp);
+                        mat.color = new Color(0, 0, 0, exp);
+
+                        //mat.color = Color.red;//Color.Lerp(Color.red,Color.yellow,(data[z*dimy*dimx+y*dimx+x]-270)/1000);
+                        mat.color = Color.Lerp(Color.red,Color.yellow,exp);
+                        //mat.color.a = exp;
+                        mat.color = Color.Lerp(Color.clear,mat.color,exp*2);
                     }
                 }
     }
