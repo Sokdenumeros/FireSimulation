@@ -325,7 +325,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1575268138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,9 +341,9 @@ MonoBehaviour:
   filename: ../Smokeview and Python/RonanExample/outputFds_T1.5_.121.61.61.raw
   pre: ../Smokeview and Python/RonanExample/outputFds_T
   post: _.121.61.61.raw
-  dimx: 0
-  dimy: 0
-  dimz: 0
+  dimx: 61
+  dimy: 61
+  dimz: 121
   fireParticle: {fileID: 8453165007520538223, guid: 0a372b22b10f77445b48fc64dba7ea33, type: 3}
 --- !u!4 &1575268139
 Transform:
@@ -360,6 +360,86 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2028859183
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2028859187}
+  - component: {fileID: 2028859186}
+  - component: {fileID: 2028859185}
+  - component: {fileID: 2028859184}
+  m_Layer: 0
+  m_Name: SimulationManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2028859184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028859183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 314cae04650a1ce4486a8a025a1f1c09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pre: ../Smokeview and Python/RonanExample/velocity_T
+  post: _.121.61.61.raw
+--- !u!114 &2028859185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028859183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4f0c79eeb130d94aabdfd881873487f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pre: ../Smokeview and Python/RonanExample/temperature_T
+  post: _.121.61.61.raw
+--- !u!114 &2028859186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028859183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a13451fda2cf5c74dbfd0a1dd5348e9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireParticle: {fileID: 8453165007520538223, guid: 0a372b22b10f77445b48fc64dba7ea33, type: 3}
+  dimx: 61
+  dimy: 61
+  dimz: 121
+  temperatureManager: {fileID: 2028859185}
+  velocityManager: {fileID: 2028859184}
+--- !u!4 &2028859187
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028859183}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.0662915, y: 0.26036975, z: 0.9445428}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -367,3 +447,4 @@ SceneRoots:
   - {fileID: 963194228}
   - {fileID: 705507995}
   - {fileID: 1575268139}
+  - {fileID: 2028859187}

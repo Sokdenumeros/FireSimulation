@@ -17,6 +17,7 @@ public class DataLoader : MonoBehaviour
     public string post;
 
     float[] data;
+    Vector3[] vectorData;
     public int dimx;
     public int dimy;
     public int dimz;
@@ -62,7 +63,6 @@ public class DataLoader : MonoBehaviour
         Task.Run( () => readBinarytoList(pre+time.ToString("0.0").Replace(',', '.')+post) );
     }
 
-    //Try to load into this list so I can check if Last is passing by reference.
     private void readBinarytoList(string filePath)
     {
         string[] values = filePath.Split(".");
@@ -106,6 +106,32 @@ public class DataLoader : MonoBehaviour
         }
     }
 
+    private void readVectorBinary(string filePath)
+    {
+        string[] values = filePath.Split(".");
+        dimx = int.Parse(values[values.Length - 2]);
+        dimy = int.Parse(values[values.Length - 3]);
+        dimz = int.Parse(values[values.Length - 4]);
+        float u, v, w;
+        if (File.Exists(filePath))
+        {
+            using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+            {
+                vectorData = new Vector3[dimx * dimy * dimz];
+                for (int i = 0; i < vectorData.Length; ++i) {
+                    u = reader.ReadSingle();
+                    v = reader.ReadSingle();
+                    w = reader.ReadSingle();
+                    vectorData[i] = new Vector3(u,v,w);
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("File not found: " + filePath);
+        }
+    }
+
     private void instObjects()
     {
         GameObject o;
@@ -124,7 +150,7 @@ public class DataLoader : MonoBehaviour
                         mat = me.material;
                         
                         //should never be above 1, for some reason the ronan example has values e+16
-                        mat.color = new Color(0, 0, 0, exp);
+                        //mat.color = new Color(0, 0, 0, exp);
 
                         //mat.color = Color.red;//Color.Lerp(Color.red,Color.yellow,(data[z*dimy*dimx+y*dimx+x]-270)/1000);
                         mat.color = Color.Lerp(Color.red,Color.yellow,exp);
