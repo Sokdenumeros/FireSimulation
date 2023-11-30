@@ -47,7 +47,7 @@ public class simulationManager : MonoBehaviour
         }
     }
 
-    /*private void instObjects()
+    private void instObjects()
     {
         GameObject o;
         MeshRenderer me;
@@ -75,7 +75,7 @@ public class simulationManager : MonoBehaviour
                     }
                 }
     }
-
+    /*
     struct partInfo{
         public Vector3 position;
         public float temperature;
