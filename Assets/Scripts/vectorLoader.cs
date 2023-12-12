@@ -17,6 +17,7 @@ public class vectorLoader : MonoBehaviour
     //IF TIME I AM ASKING FOR IS NOT IN TIMELIT RETURN ERROR
     //PROBABLY SHOULD MAKE IT SO THAT I CAN ASK FOR A CERTAIN TIME
     public Vector3[] getData(){return dataList.First.Value;}
+    public Vector3[] getNextData(){return dataList.First.Next.Value;}
 
     public void initialize()
     {

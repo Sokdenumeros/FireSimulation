@@ -18,6 +18,7 @@ public class floatLoader : MonoBehaviour
     //IF TIME I AM ASKING FOR IS NOT IN TIMELIT RETURN ERROR
     //PROBABLY SHOULD MAKE IT SO THAT I CAN ASK FOR A CERTAIN TIME
     public float[] getData(){return dataList.First.Value;}
+    public float[] getNextData(){return dataList.First.Next.Value;}
 
     // Start is called before the first frame update
     public void initialize()

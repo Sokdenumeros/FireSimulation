@@ -10,9 +10,15 @@ public class simulationManager : MonoBehaviour
 
     public floatLoader temperatureManager;
     private float[] temperature;
+    private float[] nextTemperature;
 
     public vectorLoader velocityManager;
     private Vector3[] velocity;
+    private Vector3[] nextVelocity;
+
+    //Those variables are just to test the RenderMeshInstanced
+    public Material fsmat;
+    public Mesh quadmesh;
 
     public 
     // Start is called before the first frame update
@@ -20,12 +26,15 @@ public class simulationManager : MonoBehaviour
     {
         temperatureManager.initialize();
         temperature = temperatureManager.getData();
+        nextTemperature = temperatureManager.getNextData();
         velocityManager.initialize();
         velocity = velocityManager.getData();
+        nextVelocity = velocityManager.getNextData();
         timeList = new LinkedList<float>();
         timeList.AddLast(0.0f);
         timeList.AddLast(0.5f);
         timeList.AddLast(1.0f);
+        instantiateParticles();
     }
 
     // Update is called once per frame
@@ -38,13 +47,18 @@ public class simulationManager : MonoBehaviour
             timeList.AddLast(time);
 
             temperature = temperatureManager.newTimeData(time);
+            nextTemperature = temperatureManager.getNextData();
             velocity = velocityManager.newTimeData(time);
+            nextVelocity = velocityManager.getNextData();
 
             Object[] allObjects = Object.FindObjectsOfType(typeof(GameObject));
             foreach(GameObject obj in allObjects) if(obj.transform.name.StartsWith("FireParticle")) Destroy(obj);
 
-            instObjects();
+            //instObjects();
+            instantiateParticles();
         }
+        updateParticles();
+        paintParticles();
     }
 
     private void instObjects()
@@ -75,7 +89,7 @@ public class simulationManager : MonoBehaviour
                     }
                 }
     }
-    /*
+    
     struct partInfo{
         public Vector3 position;
         public float temperature;
@@ -89,7 +103,7 @@ public class simulationManager : MonoBehaviour
 
     private void instantiateParticles() {
 
-        particles = new List<partInfo>(dimx*dimy*dimz/10);
+        particles = new List<partInfo>(dimx*dimy*dimz);
         float exp;
         for (int z = 0; z < dimz; z += 1)
             for (int y = 0; y < dimy; y += 1)
@@ -106,19 +120,33 @@ public class simulationManager : MonoBehaviour
         partInfo p;
         Vector3 pos;
         Vector3 big = new Vector3(dimx,dimy,dimz);
+        float factor = (Time.time-timeList.First.Value)*2;
         for(int i = 0; i < particles.Count; ++i) {
             p = particles[i];
             pos = p.position*100.0f;
             pos = Vector3.Max(pos, Vector3.zero);
             pos = Vector3.Min(pos, big);
             //INTERCHANGING Y AND Z BECAUSE INDICES WERE FLIPPED
-            p.position += velocity[(int)(pos.y * dimy * dimx + pos.z * dimx + pos.x)]*Time.deltaTime;
+            p.position += ((1-factor)*velocity[(int)(pos.y * dimy * dimx + pos.z * dimx + pos.x)]+factor*nextVelocity[(int)(pos.y * dimy * dimx + pos.z * dimx + pos.x)])*Time.deltaTime;
             particles[i] = p;
 
         }
     }
 
     private void paintParticles() {
-        Graphics.DrawMeshInstancedIndirect(instanceMesh, subMeshIndex, instanceMaterial, new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f)), argsBuffer);
-    }*/
+        RenderParams rp = new RenderParams(fsmat);
+        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(0.1f,0.1f,0.1f));
+        float exp;
+        Color c;
+        //Matrix4x4[] instData = new Matrix4x4[particles.Count];
+        for(int i = 0; i < particles.Count; ++i){
+            exp = (particles[i].temperature - 300) / 1300;
+            c = Color.Lerp(Color.red,Color.yellow,exp);
+            rp.material.color = Color.Lerp(Color.clear,c,exp*2);
+            rp.material.color = c;
+            //rp = new RenderParams(m);
+            Graphics.RenderMesh(rp, quadmesh, 0, Matrix4x4.Translate(particles[i].position)*scaleMatrix);
+        }
+        //Graphics.DrawMeshInstancedIndirect(instanceMesh, subMeshIndex, instanceMaterial, new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f)), argsBuffer);
+    }
 }

@@ -425,6 +425,8 @@ MonoBehaviour:
   dimz: 121
   temperatureManager: {fileID: 2028859185}
   velocityManager: {fileID: 2028859184}
+  fsmat: {fileID: 2100000, guid: ae6fdbe4c895f0744a9517428229b602, type: 2}
+  quadmesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &2028859187
 Transform:
   m_ObjectHideFlags: 0
