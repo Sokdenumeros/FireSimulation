@@ -102,7 +102,8 @@ public class simulationManager : MonoBehaviour
             //instantiateParticleObjects();
         }
         updateParticles();
-        paintParticles();
+        //paintParticles();
+        paintParticlesInstanced();
     }
 
     private void instObjects()
@@ -153,7 +154,7 @@ public class simulationManager : MonoBehaviour
         //for (int z = 0; z < dimz; z += 1) for (int y = 0; y < dimy; y += 1) for (int x = 0; x < dimx; x += 1){
         for (int z = dimz-1; z >= 0; z -= 1) for (int y = dimy-1; y >= 0; y -= 1) for (int x = dimx-1; x >= 0; x -= 1){
                     exp = (temps[z * dimy * dimx + y * dimx + x] - 300) / 1300;
-                    if (exp > 0.5) particles.Add(new partInfo(new Vector3(x, z, y) / 100, temps[z * dimy * dimx + y * dimx + x]));
+                    if (exp > 0) particles.Add(new partInfo(new Vector3(x, z, y) / 100, temps[z * dimy * dimx + y * dimx + x]));
                 }
         
     }
@@ -179,6 +180,7 @@ public class simulationManager : MonoBehaviour
     private void paintParticles() {
         GameObject o = Instantiate(fireParticle, new Vector3(0,0,0), Quaternion.identity);
         RenderParams rp = new RenderParams(o.GetComponent<MeshRenderer>().material);
+        //rp = new RenderParams(fsmat);
         Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(0.1f,0.1f,0.1f));
         float exp;
         Color c;
@@ -186,13 +188,18 @@ public class simulationManager : MonoBehaviour
         for(int i = 0; i < particles.Count; ++i){
             exp = (particles[i].temperature - 300) / 1300;
             c = Color.Lerp(Color.red,Color.yellow,exp);
-            rp.material.color = Color.Lerp(Color.clear,c,exp*2);
+            //rp.material.color = Color.Lerp(Color.clear,c,exp*2);
             //rp.material.color = c;
             //rp = new RenderParams(m);
             Graphics.RenderMesh(rp, quadmesh, 0, Matrix4x4.Translate(particles[i].position)*scaleMatrix);
+            //instData[i] = Matrix4x4.Translate(particles[i].position);
         }
         Destroy(o);
-        //Graphics.DrawMeshInstancedIndirect(instanceMesh, subMeshIndex, instanceMaterial, new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f)), argsBuffer);
+        //Graphics.DrawMeshInstancedIndirect(quadmesh, 0, fsmat, new Bounds(Vector3.zero, new Vector3(200.0f, 200.0f, 200.0f)), argsBuffer);
+        //rp = new RenderParams(fsmat);
+        //instData = new Matrix4x4[1];
+        //instData[0] = Matrix4x4.Translate(new Vector3(0.0f,-100.0f,0.0f));
+        //Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData);
     }
 
     private void instantiateParticleObjects() {
@@ -207,7 +214,18 @@ public class simulationManager : MonoBehaviour
             c = Color.Lerp(Color.red,Color.yellow,exp);
             me.material.color = Color.Lerp(Color.clear,c,exp*2);
             fsmat.color = Color.Lerp(Color.clear,c,exp*2);
-            me.material = fsmat;
+            //me.material = fsmat;
         }
+    }
+
+    private void paintParticlesInstanced() {
+        RenderParams rp = new RenderParams(fsmat);
+        Matrix4x4[] instData = new Matrix4x4[particles.Count];
+        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(0.1f,0.1f,0.1f));
+        for(int i = 0; i < particles.Count; ++i){
+            instData[i] = Matrix4x4.Translate(particles[i].position)*scaleMatrix;
+        }
+        //Graphics.DrawMeshInstancedIndirect(quadmesh, 0, fsmat, new Bounds(Vector3.zero, new Vector3(200.0f, 200.0f, 200.0f)), argsBuffer);
+        if(particles.Count > 0) Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData);
     }
 }
