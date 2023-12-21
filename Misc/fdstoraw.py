@@ -10,8 +10,8 @@ temp, grid = slc.to_global(return_coordinates=True, masked=True)
 
 # Get the times
 times = slc.times
-#0 2 3 1 maybe?
-temp= np.transpose(temp, (0, 3, 2, 1))
+#0 2 3 1 maybe? just switched 2 and 3
+temp= np.transpose(temp, (0, 2, 3, 1))
 
 # Get the shape of the temperature array
 shape = temp.shape
@@ -27,9 +27,11 @@ uVelocity, grid = sim.slices[0].to_global(return_coordinates=True, masked=True)
 vVelocity, grid = sim.slices[1].to_global(return_coordinates=True, masked=True)
 wVelocity, grid = sim.slices[2].to_global(return_coordinates=True, masked=True)
 
-velocities = np.stack([uVelocity, vVelocity, wVelocity], axis=4)
-#0 2 3 1 4 maybe?
-velocities = np.transpose(velocities, (0, 3, 2, 1, 4))
+#u , v , w maybe?
+#in unity its xyz with y being the vertical component while in smokeview its xyz with z being the vertical component
+velocities = np.stack([uVelocity, wVelocity, vVelocity], axis=4)
+#0 2 3 1 4 maybe?  just switched 2 and 3
+velocities = np.transpose(velocities, (0, 2, 3, 1, 4))
 
 shape = velocities.shape
 

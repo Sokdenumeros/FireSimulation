@@ -20,13 +20,14 @@ public class simulationManager : MonoBehaviour
 
     //Variables to test the dataElement struct
     dataElement temperatures;
-
+    int r(float f) {return Mathf.RoundToInt(f);}
     struct dataElement{
         public float[] previous;
         public float[] next;
         public float previousTime;
         public float nextTime;
         public int dimx, dimy, dimz;
+        private int r(float f) {return Mathf.RoundToInt(f);}
         public dataElement(float[] a, float[] b, int x, int y,int  z) {
             previousTime = 0.0f;
             nextTime = 0.0f;
@@ -39,8 +40,8 @@ public class simulationManager : MonoBehaviour
 
         public float sample(float t, float x, float y, float z){
             float timeFactor = (t-previousTime)/(nextTime-previousTime);
-            float timesample0 = previous[ (int)y*dimy*dimx + (int)z*dimx + (int)x ];
-            float timesample1 = next[(int)y * dimy * dimx + (int)z * dimx + (int)x];
+            float timesample0 = previous[ r(z)*dimy*dimx + r(y)*dimx + r(x) ];
+            float timesample1 = next[r(z) * dimy * dimx + r(y) * dimx + r(x)];
             return (1-timeFactor)*timesample0 + timeFactor*timesample1;
         }
 
@@ -49,8 +50,8 @@ public class simulationManager : MonoBehaviour
             float y = v.y;
             float z = v.z;
             float timeFactor = (t-previousTime)/(nextTime-previousTime);
-            float timesample0 = previous[ (int)y*dimy*dimx + (int)z*dimx + (int)x ];
-            float timesample1 = next[(int)y * dimy * dimx + (int)z * dimx + (int)x];
+            float timesample0 = previous[ r(z)*dimy*dimx + r(y)*dimx + r(x) ];
+            float timesample1 = next[r(z) * dimy * dimx + r(y) * dimx + r(x)];
             return (1-timeFactor)*timesample0 + timeFactor*timesample1;
         }
     }
@@ -102,8 +103,8 @@ public class simulationManager : MonoBehaviour
             //instantiateParticleObjects();
         }
         updateParticles();
-        //paintParticles();
-        paintParticlesInstanced();
+        paintParticles();
+        //paintParticlesInstanced();
     }
 
     private void instObjects()
@@ -154,16 +155,16 @@ public class simulationManager : MonoBehaviour
         //for (int z = 0; z < dimz; z += 1) for (int y = 0; y < dimy; y += 1) for (int x = 0; x < dimx; x += 1){
         for (int z = dimz-1; z >= 0; z -= 1) for (int y = dimy-1; y >= 0; y -= 1) for (int x = dimx-1; x >= 0; x -= 1){
                     exp = (temps[z * dimy * dimx + y * dimx + x] - 300) / 1300;
-                    if (exp > 0) particles.Add(new partInfo(new Vector3(x, z, y) / 100, temps[z * dimy * dimx + y * dimx + x]));
+                    if (exp > 0) particles.Add(new partInfo(new Vector3(x, y, z) / 100, temps[z * dimy * dimx + y * dimx + x]));
                 }
         
     }
-
+    
     //MAYBE I SHOULD TRANSPOSE THE DATA ARRAY IN PYTHON IN A DIFFERENT WAY AT SOME POINT
     private void updateParticles() {
         partInfo p;
         Vector3 pos;
-        Vector3 big = new Vector3(dimx,dimy,dimz);
+        Vector3 big = new Vector3(dimx-1,dimy-1,dimz-1);
         float factor = (Time.time-timeList.First.Value)*2;
         for(int i = 0; i < particles.Count; ++i) {
             p = particles[i];
@@ -172,7 +173,7 @@ public class simulationManager : MonoBehaviour
             pos = Vector3.Min(pos, big);
             p.temperature = temperatures.sample(Time.time,pos);
             //INTERCHANGING Y AND Z BECAUSE INDICES WERE FLIPPED
-            //p.position += ((1-factor)*velocity[(int)(pos.y * dimy * dimx + pos.z * dimx + pos.x)]+factor*nextVelocity[(int)(pos.y * dimy * dimx + pos.z * dimx + pos.x)])*Time.deltaTime;
+            p.position += ( (1-factor)*velocity[r(pos.z) * dimy * dimx + r(pos.y) * dimx + r(pos.x)] + factor*nextVelocity[r(pos.z)*dimy*dimx + r(pos.y)*dimx + r(pos.x)] )*Time.deltaTime/2.0f;
             particles[i] = p;
         }
     }
@@ -184,7 +185,6 @@ public class simulationManager : MonoBehaviour
         Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(0.1f,0.1f,0.1f));
         float exp;
         Color c;
-        //Matrix4x4[] instData = new Matrix4x4[particles.Count];
         for(int i = 0; i < particles.Count; ++i){
             exp = (particles[i].temperature - 300) / 1300;
             c = Color.Lerp(Color.red,Color.yellow,exp);
@@ -192,14 +192,8 @@ public class simulationManager : MonoBehaviour
             //rp.material.color = c;
             //rp = new RenderParams(m);
             Graphics.RenderMesh(rp, quadmesh, 0, Matrix4x4.Translate(particles[i].position)*scaleMatrix);
-            //instData[i] = Matrix4x4.Translate(particles[i].position);
         }
         Destroy(o);
-        //Graphics.DrawMeshInstancedIndirect(quadmesh, 0, fsmat, new Bounds(Vector3.zero, new Vector3(200.0f, 200.0f, 200.0f)), argsBuffer);
-        //rp = new RenderParams(fsmat);
-        //instData = new Matrix4x4[1];
-        //instData[0] = Matrix4x4.Translate(new Vector3(0.0f,-100.0f,0.0f));
-        //Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData);
     }
 
     private void instantiateParticleObjects() {

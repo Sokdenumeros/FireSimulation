@@ -70,7 +70,7 @@ public class vectorLoader : MonoBehaviour
                 u = reader.ReadSingle();
                 v = reader.ReadSingle();
                 w = reader.ReadSingle();
-                data[i] = new Vector3(u,w,v);
+                data[i] = new Vector3(u,v,w);
             }
         }
     }
