@@ -103,8 +103,8 @@ public class simulationManager : MonoBehaviour
             //instantiateParticleObjects();
         }
         updateParticles();
-        paintParticles();
-        //paintParticlesInstanced();
+        //paintParticles();
+        paintParticlesInstanced();
     }
 
     private void instObjects()
@@ -219,7 +219,24 @@ public class simulationManager : MonoBehaviour
         for(int i = 0; i < particles.Count; ++i){
             instData[i] = Matrix4x4.Translate(particles[i].position)*scaleMatrix;
         }
+
+        //EXPERIMENTAL
+        if (particles.Count > 0)
+        {
+            ComputeBuffer testBuffer = new ComputeBuffer(particles.Count, sizeof(float) * 4);
+            Color[] testdata = new Color[particles.Count];
+            float exp;
+            for (int i = 0; i < particles.Count; ++i)
+            {
+                exp = (particles[i].temperature - 300) / 1300;
+                testdata[i] = Color.Lerp(Color.red, Color.yellow, exp);
+                testdata[i] = Color.Lerp(Color.clear, testdata[i], exp * 2);
+            }
+            testBuffer.SetData(testdata);
+            fsmat.SetBuffer("colorbuffer", testBuffer);
+        }
+
         //Graphics.DrawMeshInstancedIndirect(quadmesh, 0, fsmat, new Bounds(Vector3.zero, new Vector3(200.0f, 200.0f, 200.0f)), argsBuffer);
-        if(particles.Count > 0) Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData);
+        if (particles.Count > 0) Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData);
     }
 }

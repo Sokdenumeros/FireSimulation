@@ -15,7 +15,6 @@ Z is vertical in smokeview, Y is vertical in unity, so the python scripts need t
 
 Things to do:
 change the float struct to Template struct
-Draw instanced
 How do I rotate the particles so they are always looking at the camera? Maybe with the negative forward vector of the camera is enough?
 
 
@@ -37,3 +36,8 @@ https://docs.unity3d.com/Manual/SL-MultipleProgramVariants.html
 https://docs.unity3d.com/Manual/gpu-instancing-shader.html#changing-per-instanced-data-at-runtime
 https://docs.unity3d.com/Manual/gpu-instancing-shader.html#vertex-and-fragment-shader
 https://docs.unity3d.com/ScriptReference/Graphics.RenderMeshInstanced.html
+https://docs.unity3d.com/ScriptReference/Material.SetBuffer.html
+https://docs.unity3d.com/Manual/SL-UnityShaderVariables.html
+https://docs.unity3d.com/Manual/SL-BuiltinFunctions.html
+
+https://firedynamics.github.io/fdsreader/index.html
