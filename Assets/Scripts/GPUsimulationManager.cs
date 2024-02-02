@@ -69,12 +69,13 @@ public class GPUsimulationManager : MonoBehaviour
 
             temperatureBuffer1.SetData(temperatureManager.newTimeData(time));
             temperatureBuffer2.SetData(temperatureManager.getNextData());
-
+            //Vector3[] vbuff = new Vector3[nparticles];
+            //for (int i = 0; i < nparticles; ++i) vbuff[i] = new Vector3(0, 0, 1);
+            //velocityBuffer1.SetData(vbuff);
             velocityBuffer1.SetData(velocityManager.newTimeData(time));
             velocityBuffer2.SetData(velocityManager.getNextData());
 
             initBuffers();
-            //updateParticles();
         }
         updateParticles();
         paintParticlesInstanced();
@@ -93,15 +94,10 @@ public class GPUsimulationManager : MonoBehaviour
                     if (index < nparticles && exp > 0.0)
                     {
                         positions[index] = new Vector3((float)x, (float)y, (float)z) / 100.0f;
-                        instData[index] = Matrix4x4.identity;
+                        instData[index] = scaleMatrix;
                         ++index;
                     }
                 }
-        for (int i = 0; i < nparticles; ++i)
-        {
-            instData[i] = Matrix4x4.identity;
-            positions[index] = new Vector3(0, 1, 0);
-        }
         positionBuffer.SetData(positions);
     }
 
@@ -119,25 +115,26 @@ public class GPUsimulationManager : MonoBehaviour
 
         particleUpdater.SetFloat("factor", factor);
         particleUpdater.SetFloat("deltaTime", Time.deltaTime);
+        particleUpdater.SetInt("nparticles", nparticles);
 
         uint x, y, z;
         particleUpdater.GetKernelThreadGroupSizes(0, out x, out y, out z);
-        particleUpdater.Dispatch(0, nparticles/2, 2, 1);
+        int threadsx = (int)(nparticles / (x*y*z));
+        if (nparticles % (x * y * z) > 0) threadsx++;
+        particleUpdater.Dispatch(0, threadsx, 1, 1);
 
     }
 
     private void paintParticlesInstanced()
     {
-        fsmat.SetBuffer("colorbuffer", colorBuffer);
+        /*fsmat.SetBuffer("colorbuffer", colorBuffer);
         fsmat.SetBuffer("positionbuffer", positionBuffer);
 
-        RenderParams rp = new RenderParams(fsmat);
+        RenderParams rp = new RenderParams(fsmat);*/
         Material[] materials = new Material[40];
 
         for (int i = 0; i < 40; i++)
         {
-            //fsmat.SetInt("offset", i*512);
-            //rp = new RenderParams(fsmat);
             materials[i] = new Material(fsmat);
             materials[i].SetInt("offset", i * 511);
             materials[i].SetBuffer("colorbuffer", colorBuffer);

@@ -48,18 +48,11 @@ Shader "Unlit/FireShader"
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 float4 vert = v.vertex;
-                vert /= 10;
-                vert.w *= 10;
                 vert = mul(unity_ObjectToWorld, vert);
                 #ifdef INSTANCING_ON
                     int id = v.instanceID + offset;
-                    //vert += float4(positionbuffer[v.instanceID], 0);
-                    //unity_ObjectToWorld._14_24_34_44 = float4(positionbuffer[v.instanceID], 1);
-                    //vert += float4(v.instanceID*0.001,0,0, 0);
                     vert += float4(positionbuffer[id], 0);
-                //vert += float4(float3(id / 61 / 61 * 0.1, ((id / 61) % 61) * 0.1, (id % 61) * 0.1), 0);
                 #endif
-                //vert = mul(unity_ObjectToWorld, vert);
                 o.vertex = mul(UNITY_MATRIX_VP, vert);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;

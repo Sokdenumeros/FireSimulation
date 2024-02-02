@@ -5,7 +5,8 @@
 // with cs.SetTexture
 RWTexture2D<float4> Result;
 
-float dimensions[3];
+int3 dimensions;
+int nparticles;
 float factor;
 float deltaTime;
 StructuredBuffer<float> temps1;
@@ -15,18 +16,17 @@ StructuredBuffer<float3> vel1;
 StructuredBuffer<float3> vel2;
 RWStructuredBuffer<float4> colors;
 
-[numthreads(1,1,1)]
-void CSMain (uint3 id : SV_DispatchThreadID, uint3 groupID : SV_GroupID)
+[numthreads(8,8,8)]
+void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
 {
-    // TODO: insert actual code here!
-    uint globalIndex = groupID.x*2+groupID.y;
-
-    /*float3 pos = positions[globalIndex] * 100;
-    pos = max(pos, float3(0,0,0));
-    pos = min(pos, float3(dimensions[0], dimensions[1], dimensions[2]));
-    int positionIndex = int(pos.z) * dimensions[1] * dimensions[0] + int(pos.y) * dimensions[0] + int(pos.x);*/
-
-    //positions[globalIndex] += vel1[positionIndex] * deltaTime;
-    //positions[globalIndex] = float3(globalIndex/61/61*0.1, ((globalIndex / 61) % 61)*0.1, (globalIndex % 61)*0.1);
-    colors[globalIndex] = float4(0.0, 1.0, 0.0, 1.0);
+    int globalIndex = (int)(groupID.x * 512 + id.x + id.y * 8 + id.z * 64);
+    if (globalIndex < nparticles)
+    {
+        float3 pos = positions[globalIndex] * 100;
+        pos = max(pos, float3(0, 0, 0));
+        pos = min(pos, float3(dimensions.x, dimensions.y, dimensions.z));
+        int positionIndex = (int)pos.z * dimensions.y * dimensions.x + (int)pos.y * dimensions.x + (int)pos.x;
+        positions[globalIndex] += vel1[positionIndex] * deltaTime;
+        colors[globalIndex] = float4(0.0, 1.0, 0.0, 1.0);
+    }
 }
