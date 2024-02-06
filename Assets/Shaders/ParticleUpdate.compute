@@ -26,7 +26,16 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         pos = max(pos, float3(0, 0, 0));
         pos = min(pos, float3(dimensions.x, dimensions.y, dimensions.z));
         int positionIndex = (int)pos.z * dimensions.y * dimensions.x + (int)pos.y * dimensions.x + (int)pos.x;
-        positions[globalIndex] += vel1[positionIndex] * deltaTime;
-        colors[globalIndex] = float4(0.0, 1.0, 0.0, 1.0);
+
+        positions[globalIndex] += ((1 - factor) * vel1[positionIndex] + factor * vel2[positionIndex]) * deltaTime/2;
+
+        float exp = (temps1[globalIndex] - 300) / 1300;
+        float4 c = lerp(float4(1,0,0,1), float4(1, 0.92, 0.016, 1), exp);
+        c = lerp(float4(0, 0, 0, 0), c, 1);
+
+        if (exp < -0.3) c = float4(1, 1, 1, 1);
+
+        //positions[globalIndex] += vel1[positionIndex] * deltaTime;
+        colors[globalIndex] = c;
     }
 }
