@@ -8,15 +8,19 @@ Shader "Unlit/FireShader"
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" }
+        Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Additive" "PreviewType"="Plane"}
+        ZWrite Off
+        BlendOp Add
+        Blend SrcColor One
+        Cull Off
         LOD 100
 
         Pass
         {
             Cull off
             CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
+            #pragma vertex vert alpha
+            #pragma fragment frag alpha
             #pragma multi_compile_instancing
 
             #include "UnityCG.cginc"

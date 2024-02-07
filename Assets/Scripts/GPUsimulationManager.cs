@@ -5,7 +5,7 @@ using UnityEngine;
 public class GPUsimulationManager : MonoBehaviour
 {
     public int dimx, dimy, dimz;
-    LinkedList<float> timeList;
+    //LinkedList<float> timeList;
 
     public floatLoader temperatureManager;
     public vectorLoader velocityManager;
@@ -49,10 +49,10 @@ public class GPUsimulationManager : MonoBehaviour
         velocityBuffer1.SetData(velocityManager.getData());
         velocityBuffer2.SetData(velocityManager.getNextData());
 
-        timeList = new LinkedList<float>();
+        /*timeList = new LinkedList<float>();
         timeList.AddLast(0.0f);
         timeList.AddLast(0.5f);
-        timeList.AddLast(1.0f);
+        timeList.AddLast(1.0f);*/
 
         initBuffers();
     }
@@ -60,7 +60,7 @@ public class GPUsimulationManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Time.time > timeList.First.Value)
+        /*if (Time.time > timeList.First.Value+0.5f)
         {
 
             float time = timeList.First.Value + 1.5f;
@@ -76,7 +76,24 @@ public class GPUsimulationManager : MonoBehaviour
             velocityBuffer2.SetData(velocityManager.getNextData());
 
             initBuffers();
+        }*/
+
+        bool redoBuffers = false;
+
+        if(temperatureManager.checkTimeInterval()){
+            temperatureBuffer1.SetData(temperatureManager.getData());
+            temperatureBuffer2.SetData(temperatureManager.getNextData());
+            redoBuffers = true;
         }
+
+        if(velocityManager.checkTimeInterval()){
+            velocityBuffer1.SetData(velocityManager.getData());
+            velocityBuffer2.SetData(velocityManager.getNextData());
+            redoBuffers = true;
+        }
+
+        if(redoBuffers) initBuffers();
+
         updateParticles();
         paintParticlesInstanced();
     }
@@ -104,7 +121,7 @@ public class GPUsimulationManager : MonoBehaviour
     private void updateParticles()
     {
         Vector3 big = new Vector3(dimx - 1, dimy - 1, dimz - 1);
-        float factor = (Time.time - timeList.First.Value) * 2;
+        //float factor = (Time.time - timeList.First.Value) * 2;
 
         particleUpdater.SetBuffer(0, "positions", positionBuffer);
         particleUpdater.SetBuffer(0, "colors", colorBuffer);
@@ -113,7 +130,8 @@ public class GPUsimulationManager : MonoBehaviour
         particleUpdater.SetBuffer(0, "vel1", velocityBuffer1);
         particleUpdater.SetBuffer(0, "vel2", velocityBuffer2);
 
-        particleUpdater.SetFloat("factor", factor);
+        particleUpdater.SetFloat("tempfactor", temperatureManager.getInterpolationFactor());
+        particleUpdater.SetFloat("velfactor", velocityManager.getInterpolationFactor());
         particleUpdater.SetFloat("deltaTime", Time.deltaTime);
         particleUpdater.SetInt("nparticles", nparticles);
 

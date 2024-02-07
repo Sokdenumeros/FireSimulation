@@ -80,7 +80,7 @@ public class simulationManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Time.time > timeList.First.Value) {
+        /*if(Time.time > timeList.First.Value) {
 
             float time = timeList.First.Value + 1.5f;
             timeList.RemoveFirst();
@@ -101,10 +101,40 @@ public class simulationManager : MonoBehaviour
             //instObjects();
             instantiateParticles();
             //instantiateParticleObjects();
+        }*/
+
+        bool reinstantiate = false;
+
+        if(temperatureManager.checkTimeInterval()){
+            float time = timeList.First.Value + 1.5f;
+            timeList.RemoveFirst();
+            timeList.AddLast(time);
+
+            temperatures.previousTime = timeList.First.Value;
+            temperatures.nextTime = timeList.First.Next.Value;
+
+            temperatures.previous = temperatureManager.getData();
+            temperatures.next = temperatureManager.getNextData();
+            reinstantiate = true;
         }
+
+        if(velocityManager.checkTimeInterval()){
+            velocity = velocityManager.getData();
+            nextVelocity = velocityManager.getNextData();
+            reinstantiate = true;
+        }
+
+        if(reinstantiate) {
+            Object[] allObjects = Object.FindObjectsOfType(typeof(GameObject));
+            foreach(GameObject obj in allObjects) if(obj.transform.name.StartsWith("FireParticle")) Destroy(obj);
+            //instObjects();
+            instantiateParticles();
+            //instantiateParticleObjects();
+        }
+
         updateParticles();
-        //paintParticles();
-        paintParticlesInstanced();
+        paintParticles();
+        //paintParticlesInstanced();
     }
 
     private void instObjects()
@@ -165,7 +195,7 @@ public class simulationManager : MonoBehaviour
         partInfo p;
         Vector3 pos;
         Vector3 big = new Vector3(dimx-1,dimy-1,dimz-1);
-        float factor = (Time.time-timeList.First.Value)*2;
+        float factor = temperatureManager.getInterpolationFactor();
         for(int i = 0; i < particles.Count; ++i) {
             p = particles[i];
             pos = p.position*100.0f;
@@ -181,13 +211,14 @@ public class simulationManager : MonoBehaviour
     private void paintParticles() {
         GameObject o = Instantiate(fireParticle, new Vector3(0,0,0), Quaternion.identity);
         RenderParams rp = new RenderParams(o.GetComponent<MeshRenderer>().material);
-        //rp = new RenderParams(fsmat);
+        rp = new RenderParams(fsmat);
+        rp.material.color =  Color.red;
         Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(0.1f,0.1f,0.1f));
         float exp;
         Color c;
         for(int i = 0; i < particles.Count; ++i){
             exp = (particles[i].temperature - 300) / 1300;
-            c = Color.Lerp(Color.red,Color.yellow,exp);
+            c = Color.Lerp(Color.red,Color.yellow,0);
             //rp.material.color = Color.Lerp(Color.clear,c,exp*2);
             //rp.material.color = c;
             //rp = new RenderParams(m);

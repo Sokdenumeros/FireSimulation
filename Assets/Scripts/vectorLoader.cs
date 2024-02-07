@@ -9,6 +9,7 @@ public class vectorLoader : MonoBehaviour
     int dimx;
     int dimy;
     int dimz;
+    public float timestep;
     LinkedList<float> timeList;
     LinkedList<Vector3[]> dataList;
     public string pre;
@@ -16,8 +17,22 @@ public class vectorLoader : MonoBehaviour
 
     //IF TIME I AM ASKING FOR IS NOT IN TIMELIT RETURN ERROR
     //PROBABLY SHOULD MAKE IT SO THAT I CAN ASK FOR A CERTAIN TIME
-    public Vector3[] getData(){return dataList.First.Value;}
-    public Vector3[] getNextData(){return dataList.First.Next.Value;}
+    public Vector3[] getData(){
+        checkTimeInterval();
+        return dataList.First.Value;
+    }
+
+    public Vector3[] getNextData(){
+        checkTimeInterval();
+        return dataList.First.Next.Value;
+    }
+
+    public bool checkTimeInterval(){
+        if(Time.deltaTime >= timeList.First.Value+timestep) {newTimeData(timeList.Last.Value+timestep); return true;}
+        return false;
+    }
+
+    public float getInterpolationFactor(){return (Time.time - timeList.First.Value) / timestep;}
 
     public void initialize()
     {
@@ -34,16 +49,16 @@ public class vectorLoader : MonoBehaviour
         timeList.AddLast(0.0f);
 
         dataList.AddLast(new Vector3[dimx * dimy * dimz]);
-        readBinarytoList(0.5f);
-        timeList.AddLast(0.5f);
+        readBinarytoList(timestep);
+        timeList.AddLast(timestep);
 
         dataList.AddLast(new Vector3[dimx * dimy * dimz]);
-        readBinarytoList(1.0f);
-        timeList.AddLast(1.0f);
+        readBinarytoList(timestep*2);
+        timeList.AddLast(timestep*2);
     }
 
     //IF NO OTHER TIME READY, RETUNR AN ERROR
-    public Vector3[] newTimeData(float time){
+    private Vector3[] newTimeData(float time){
         timeList.AddLast(time);
         timeList.RemoveFirst();
 

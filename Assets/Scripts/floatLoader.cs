@@ -9,18 +9,31 @@ public class floatLoader : MonoBehaviour
     int dimx;
     int dimy;
     int dimz;
+    public float timestep;
     LinkedList<float> timeList;
     LinkedList<float[]> dataList;
     public string pre;
     public string post;
 
-
     //IF TIME I AM ASKING FOR IS NOT IN TIMELIT RETURN ERROR
     //PROBABLY SHOULD MAKE IT SO THAT I CAN ASK FOR A CERTAIN TIME
-    public float[] getData(){return dataList.First.Value;}
-    public float[] getNextData(){return dataList.First.Next.Value;}
+    public float[] getData(){
+        checkTimeInterval();
+        return dataList.First.Value;
+    }
 
-    // Start is called before the first frame update
+    public float[] getNextData(){
+        checkTimeInterval();
+        return dataList.First.Next.Value;
+    }
+
+    public bool checkTimeInterval(){
+        if(Time.deltaTime >= timeList.First.Value+timestep) {newTimeData(timeList.Last.Value+timestep); return true;}
+        return false;
+    }
+
+    public float getInterpolationFactor(){return (Time.time - timeList.First.Value) / timestep;}
+
     public void initialize()
     {
         dataList = new LinkedList<float[]>();
@@ -31,21 +44,22 @@ public class floatLoader : MonoBehaviour
         dimy = int.Parse(values[values.Length - 3]);
         dimz = int.Parse(values[values.Length - 4]);
 
+        //for(int i = 0; i < 3; ++i){}
         dataList.AddLast(new float[dimx * dimy * dimz]);
         readBinarytoList(0.0f);
         timeList.AddLast(0.0f);
 
         dataList.AddLast(new float[dimx * dimy * dimz]);
-        readBinarytoList(0.5f);
-        timeList.AddLast(0.5f);
+        readBinarytoList(timestep);
+        timeList.AddLast(timestep);
 
         dataList.AddLast(new float[dimx * dimy * dimz]);
-        readBinarytoList(1.0f);
-        timeList.AddLast(1.0f);
+        readBinarytoList(timestep*2);
+        timeList.AddLast(timestep*2);
     }
 
     //IF NO OTHER TIME READY, RETURN AN ERROR
-    public float[] newTimeData(float time){
+    private float[] newTimeData(float time){
         timeList.AddLast(time);
         timeList.RemoveFirst();
 
