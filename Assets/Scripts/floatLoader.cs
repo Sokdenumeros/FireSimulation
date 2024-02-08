@@ -28,12 +28,11 @@ public class floatLoader : MonoBehaviour
     }
 
     public bool checkTimeInterval(){
-        if(Time.deltaTime >= timeList.First.Value+timestep) {newTimeData(timeList.Last.Value+timestep); return true;}
+        if (Time.time >= timeList.First.Value + timestep) { newTimeData(timeList.Last.Value + timestep); return true; }
         return false;
     }
 
-    public float getInterpolationFactor(){return (Time.time - timeList.First.Value) / timestep;}
-
+    public float getInterpolationFactor() { return (Time.time - timeList.First.Value) / timestep; }
     public void initialize()
     {
         dataList = new LinkedList<float[]>();

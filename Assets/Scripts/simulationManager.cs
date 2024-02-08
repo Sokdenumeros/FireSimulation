@@ -212,13 +212,13 @@ public class simulationManager : MonoBehaviour
         GameObject o = Instantiate(fireParticle, new Vector3(0,0,0), Quaternion.identity);
         RenderParams rp = new RenderParams(o.GetComponent<MeshRenderer>().material);
         rp = new RenderParams(fsmat);
-        rp.material.color =  Color.red;
+        //rp.material.color =  Color.red;
         Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(0.1f,0.1f,0.1f));
         float exp;
         Color c;
         for(int i = 0; i < particles.Count; ++i){
             exp = (particles[i].temperature - 300) / 1300;
-            c = Color.Lerp(Color.red,Color.yellow,0);
+            c = Color.Lerp(Color.red,Color.yellow,exp);
             //rp.material.color = Color.Lerp(Color.clear,c,exp*2);
             //rp.material.color = c;
             //rp = new RenderParams(m);

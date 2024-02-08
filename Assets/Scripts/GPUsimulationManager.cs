@@ -5,7 +5,6 @@ using UnityEngine;
 public class GPUsimulationManager : MonoBehaviour
 {
     public int dimx, dimy, dimz;
-    //LinkedList<float> timeList;
 
     public floatLoader temperatureManager;
     public vectorLoader velocityManager;
@@ -49,51 +48,30 @@ public class GPUsimulationManager : MonoBehaviour
         velocityBuffer1.SetData(velocityManager.getData());
         velocityBuffer2.SetData(velocityManager.getNextData());
 
-        /*timeList = new LinkedList<float>();
-        timeList.AddLast(0.0f);
-        timeList.AddLast(0.5f);
-        timeList.AddLast(1.0f);*/
-
         initBuffers();
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*if (Time.time > timeList.First.Value+0.5f)
-        {
-
-            float time = timeList.First.Value + 1.5f;
-            timeList.RemoveFirst();
-            timeList.AddLast(time);
-
-            temperatureBuffer1.SetData(temperatureManager.newTimeData(time));
-            temperatureBuffer2.SetData(temperatureManager.getNextData());
-            //Vector3[] vbuff = new Vector3[nparticles];
-            //for (int i = 0; i < nparticles; ++i) vbuff[i] = new Vector3(0, 0, 1);
-            //velocityBuffer1.SetData(vbuff);
-            velocityBuffer1.SetData(velocityManager.newTimeData(time));
-            velocityBuffer2.SetData(velocityManager.getNextData());
-
-            initBuffers();
-        }*/
-
         bool redoBuffers = false;
 
-        if(temperatureManager.checkTimeInterval()){
+        if (temperatureManager.checkTimeInterval())
+        {
             temperatureBuffer1.SetData(temperatureManager.getData());
             temperatureBuffer2.SetData(temperatureManager.getNextData());
             redoBuffers = true;
         }
 
-        if(velocityManager.checkTimeInterval()){
+        if (velocityManager.checkTimeInterval())
+        {
             velocityBuffer1.SetData(velocityManager.getData());
             velocityBuffer2.SetData(velocityManager.getNextData());
             redoBuffers = true;
         }
 
-        if(redoBuffers) initBuffers();
-
+        if (redoBuffers) initBuffers();
+        
         updateParticles();
         paintParticlesInstanced();
     }

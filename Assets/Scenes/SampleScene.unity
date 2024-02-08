@@ -688,7 +688,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 314cae04650a1ce4486a8a025a1f1c09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timestep: 0
+  timestep: 0.5
   pre: ../Smokeview and Python/RonanExample/velocity_T
   post: _.61.121.61.raw
 --- !u!114 &2028859185
@@ -703,7 +703,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4f0c79eeb130d94aabdfd881873487f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timestep: 0
+  timestep: 0.5
   pre: ../Smokeview and Python/RonanExample/temperature_T
   post: _.61.121.61.raw
 --- !u!114 &2028859186
@@ -724,7 +724,7 @@ MonoBehaviour:
   dimz: 61
   temperatureManager: {fileID: 2028859185}
   velocityManager: {fileID: 2028859184}
-  fsmat: {fileID: 2100000, guid: b1f11386b3d775d42912c712b5b87a0c, type: 2}
+  fsmat: {fileID: 2100000, guid: ae6fdbe4c895f0744a9517428229b602, type: 2}
   quadmesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &2028859187
 Transform:
