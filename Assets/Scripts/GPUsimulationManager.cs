@@ -7,22 +7,28 @@ public class GPUsimulationManager : MonoBehaviour
     public int dimx, dimy, dimz;
 
     public floatLoader temperatureManager;
+    public floatLoader smokeManager;
     public vectorLoader velocityManager;
 
     public ComputeShader particleUpdater;
 
     //Those variables are just to test the RenderMeshInstanced
     public Material fsmat;
+    public Material smokemat;
     public Mesh quadmesh;
     Matrix4x4[] instData;
 
     ComputeBuffer temperatureBuffer1;
     ComputeBuffer temperatureBuffer2;
 
+    ComputeBuffer smokeBuffer1;
+    ComputeBuffer smokeBuffer2;
+
     ComputeBuffer velocityBuffer1;
     ComputeBuffer velocityBuffer2;
 
     ComputeBuffer positionBuffer;
+    ComputeBuffer smokepositionBuffer;
     ComputeBuffer colorBuffer;
 
     public int nparticles;
@@ -33,9 +39,15 @@ public class GPUsimulationManager : MonoBehaviour
         for (int i = 0; i < nparticles; ++i) instData[i] = Matrix4x4.identity;
         temperatureBuffer1 = new ComputeBuffer(dimx*dimy*dimz, sizeof(float));
         temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
+
+        smokeBuffer1 = new ComputeBuffer(dimx*dimy*dimz, sizeof(float));
+        smokeBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
+
         velocityBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
         velocityBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
+
         positionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
+        smokepositionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
         colorBuffer = new ComputeBuffer(nparticles, sizeof(float) * 4);
 
         particleUpdater.SetInts("dimensions", new int[3] { dimx, dimy, dimz });
@@ -43,6 +55,10 @@ public class GPUsimulationManager : MonoBehaviour
         temperatureManager.initialize();
         temperatureBuffer1.SetData(temperatureManager.getData());
         temperatureBuffer2.SetData(temperatureManager.getNextData());
+
+        smokeManager.initialize();
+        smokeBuffer1.SetData(smokeManager.getData());
+        smokeBuffer2.SetData(smokeManager.getNextData());
 
         velocityManager.initialize();
         velocityBuffer1.SetData(velocityManager.getData());
@@ -60,6 +76,13 @@ public class GPUsimulationManager : MonoBehaviour
         {
             temperatureBuffer1.SetData(temperatureManager.getData());
             temperatureBuffer2.SetData(temperatureManager.getNextData());
+            redoBuffers = true;
+        }
+
+        if (smokeManager.checkTimeInterval())
+        {
+            smokeBuffer1.SetData(smokeManager.getData());
+            smokeBuffer2.SetData(smokeManager.getNextData());
             redoBuffers = true;
         }
 
@@ -94,6 +117,19 @@ public class GPUsimulationManager : MonoBehaviour
                     }
                 }
         positionBuffer.SetData(positions);
+
+        Vector3[] smokepositions = new Vector3[nparticles];
+        float[] densities = temperatureManager.getData();
+        index = 0;
+        for (int z = 0; z < dimz; z += 1) for (int y = 0; y < dimy && index < nparticles; y += 1) for (int x = 0; x < dimx; x += 1)
+                {
+                    if (index < nparticles && densities[z * dimy * dimx + y * dimx + x] > 80.0)
+                    {
+                        smokepositions[index] = new Vector3((float)x, (float)y, (float)z) / 100.0f;
+                        ++index;
+                    }
+                }
+        smokepositionBuffer.SetData(smokepositions);
     }
 
     private void updateParticles()
@@ -136,6 +172,16 @@ public class GPUsimulationManager : MonoBehaviour
             materials[i].SetBuffer("colorbuffer", colorBuffer);
             materials[i].SetBuffer("positionbuffer", positionBuffer);
             Graphics.RenderMeshInstanced(new RenderParams(materials[i]), quadmesh, 0, instData, 512, 0);
+        }
+
+        Material[] smokematerials = new Material[40];
+        for (int i = 0; i < 40; i++)
+        {
+            smokematerials[i] = new Material(smokemat);
+            smokematerials[i].SetInt("offset", i * 511);
+            smokematerials[i].SetBuffer("positionbuffer", smokepositionBuffer);
+            smokematerials[i].SetBuffer("opacitybuffer", smokeBuffer1);
+            Graphics.RenderMeshInstanced(new RenderParams(smokematerials[i]), quadmesh, 0, instData, 512, 0);
         }
         //Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData, 512,0);
         //Graphics.DrawMeshInstancedIndirect(quadmesh,0,fsmat, new Bounds(Vector3.zero, new Vector3(100.0f, 100.0f, 100.0f)),positionBuffer);

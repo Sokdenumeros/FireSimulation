@@ -1,43 +1,24 @@
-https://docs.unity3d.com/ScriptReference/Graphics.DrawMeshInstancedIndirect.html
+Z is vertical in smokeview, Y is vertical in unity, so the python scripts need to change the order of the second and third components of vectors and positions
 
-https://docs.unity3d.com/Manual/materialvariant-concept.html
+THINGS TO DO-------------------------------------------------------------
+Rotate particles so they look at the camera
+Correct memory leaks
+VR plugin
+Fix frustrum culling
+Adjust number of particles to avoid having extra ones at 0,0,0
+smoke shader
+Use a propper data directory
 
-https://docs.unity3d.com/ScriptReference/Mesh.html
+USEFUL LINKS--------------------------------------------------------------
+https://docs.unity3d.com/Manual/SL-UnityShaderVariables.html
+https://docs.unity3d.com/Manual/SL-BuiltinFunctions.html
+https://docs.unity3d.com/ScriptReference/ComputeBufferMode.html
+https://firedynamics.github.io/fdsreader/index.html
 
-Los compute shaders se criden d'un script c#
-https://docs.unity3d.com/Manual/class-ComputeShader.html
-
+IDEAS THAT I WILL PROBABLY NEVER NEED AGAIN:-------------------------------
 Dynamic batching (use renderer.sharedmaterial)
 Unity VFX
 
+optimal transport interpolation
 
-Z is vertical in smokeview, Y is vertical in unity, so the python scripts need to change the order of the second and third components of vectors and positions
-
-Things to do:
-change the float struct to Template struct
-How do I rotate the particles so they are always looking at the camera? Maybe with the negative forward vector of the camera is enough?
-
-
-with paint with material of instanced object: some timestamps are invisible
-with paint with fsmat: some timestamps are invisible
-
-with instances:
-with material of the instanced object: Looks good
-with fsmat: looks bad and one timestamp is invisible
-
-optimal transport
-
-The one working is nistpoolfire
-https://mydisk.cs.upc.edu/s/T7Kgcictk2Bz6gp?path=%2FEjemplo%203%20simulation%20FDS
-
-Firefox session:
-https://docs.unity3d.com/540/Documentation/Manual/GPUInstancing.html#AddingPerInstanceData
-https://docs.unity3d.com/Manual/SL-MultipleProgramVariants.html
-https://docs.unity3d.com/Manual/gpu-instancing-shader.html#changing-per-instanced-data-at-runtime
-https://docs.unity3d.com/Manual/gpu-instancing-shader.html#vertex-and-fragment-shader
-https://docs.unity3d.com/ScriptReference/Graphics.RenderMeshInstanced.html
-https://docs.unity3d.com/ScriptReference/Material.SetBuffer.html
-https://docs.unity3d.com/Manual/SL-UnityShaderVariables.html
-https://docs.unity3d.com/Manual/SL-BuiltinFunctions.html
-
-https://firedynamics.github.io/fdsreader/index.html
+https://docs.unity3d.com/Manual/materialvariant-concept.html
