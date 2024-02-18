@@ -10,7 +10,7 @@ Shader "Unlit/SmokeShader"
     {
         Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Additive" "PreviewType"="Plane"}
         ZWrite Off
-        BlendOp Add
+        BlendOp RevSub
         Blend SrcColor One
         Cull Off
         LOD 100
@@ -27,6 +27,7 @@ Shader "Unlit/SmokeShader"
 
             StructuredBuffer<float3> positionbuffer;
             StructuredBuffer<float> opacitybuffer;
+            StructuredBuffer<float> temperaturebuffer;
             int offset;
 
             struct appdata
@@ -69,7 +70,14 @@ Shader "Unlit/SmokeShader"
                 fixed4 col = tex2D(_MainTex, i.uv);
                 #ifdef INSTANCING_ON
                     int id = i.instanceID;
-                    col = col * fixed4(0.2,0.2,0.2,opacitybuffer[id]);
+                    float3 pos = positionbuffer[id] * 100;
+                    pos = max(pos, float3(0, 0, 0));
+                    pos = min(pos, float3(61, 121, 61));
+                    int positionIndex = (int)pos.z * 121 * 61 + (int)pos.y * 61 + (int)pos.x;
+                    float opacity = opacitybuffer[positionIndex];// / 100.0 * 0.2;
+                    //if(opacity== 0)opacity += 0.05;
+
+                    col = col * fixed4(opacity, opacity, opacity,0);
                 #endif
                 return col;
             }

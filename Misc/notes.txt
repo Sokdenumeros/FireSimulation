@@ -1,5 +1,9 @@
 Z is vertical in smokeview, Y is vertical in unity, so the python scripts need to change the order of the second and third components of vectors and positions
 
+2 IDEAS FOR SMOKE:
+TRANSPARENT SHADER
+2 pass RevSub and Add shader
+
 THINGS TO DO-------------------------------------------------------------
 Rotate particles so they look at the camera
 Correct memory leaks

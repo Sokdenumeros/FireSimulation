@@ -33,6 +33,7 @@ public class GPUsimulationManager : MonoBehaviour
 
     public int nparticles;
     // Start is called before the first frame update
+
     void Start()
     {
         instData = new Matrix4x4[nparticles];
@@ -94,7 +95,6 @@ public class GPUsimulationManager : MonoBehaviour
         }
 
         if (redoBuffers) initBuffers();
-        
         updateParticles();
         paintParticlesInstanced();
     }
@@ -119,16 +119,17 @@ public class GPUsimulationManager : MonoBehaviour
         positionBuffer.SetData(positions);
 
         Vector3[] smokepositions = new Vector3[nparticles];
-        float[] densities = temperatureManager.getData();
+        float[] densities = smokeManager.getData();
         index = 0;
         for (int z = 0; z < dimz; z += 1) for (int y = 0; y < dimy && index < nparticles; y += 1) for (int x = 0; x < dimx; x += 1)
                 {
-                    if (index < nparticles && densities[z * dimy * dimx + y * dimx + x] > 80.0)
+                    if (index < nparticles && densities[z * dimy * dimx + y * dimx + x] > 0)
                     {
                         smokepositions[index] = new Vector3((float)x, (float)y, (float)z) / 100.0f;
                         ++index;
                     }
                 }
+        Debug.Log(index);
         smokepositionBuffer.SetData(smokepositions);
     }
 
@@ -175,12 +176,14 @@ public class GPUsimulationManager : MonoBehaviour
         }
 
         Material[] smokematerials = new Material[40];
+
         for (int i = 0; i < 40; i++)
         {
             smokematerials[i] = new Material(smokemat);
             smokematerials[i].SetInt("offset", i * 511);
             smokematerials[i].SetBuffer("positionbuffer", smokepositionBuffer);
             smokematerials[i].SetBuffer("opacitybuffer", smokeBuffer1);
+            smokematerials[i].SetBuffer("temperaturebuffer", temperatureBuffer1);
             Graphics.RenderMeshInstanced(new RenderParams(smokematerials[i]), quadmesh, 0, instData, 512, 0);
         }
         //Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData, 512,0);
