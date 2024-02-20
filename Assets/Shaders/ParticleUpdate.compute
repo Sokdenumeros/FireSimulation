@@ -31,8 +31,7 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         positions[globalIndex] += ((1 - velfactor) * vel1[positionIndex] + velfactor * vel2[positionIndex]) * deltaTime/2;
 
         float temp;
-        temp = ((1 - tempfactor)*temps1[globalIndex] + tempfactor*temps2[globalIndex]);
-        //temp = temps1[globalIndex];
+        temp = ((1 - tempfactor)*temps1[positionIndex] + tempfactor*temps2[positionIndex]);
 
         float transferFunction = (temp - 300) / 1300;
         float4 c = lerp(float4(1,0,0,1), float4(1, 0.92, 0.016, 1), transferFunction);

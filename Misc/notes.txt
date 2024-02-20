@@ -11,7 +11,7 @@ VR plugin
 Fix frustrum culling
 Adjust number of particles to avoid having extra ones at 0,0,0
 smoke shader
-Use a propper data directory
+Change the dot texture by a more complicated cloud
 
 USEFUL LINKS--------------------------------------------------------------
 https://docs.unity3d.com/Manual/SL-UnityShaderVariables.html

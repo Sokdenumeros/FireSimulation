@@ -10,8 +10,8 @@ Shader "Unlit/SmokeShader"
     {
         Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Additive" "PreviewType"="Plane"}
         ZWrite Off
-        BlendOp RevSub
-        Blend SrcColor One
+        BlendOp Add
+        Blend SrcColor OneMinusSrcAlpha
         Cull Off
         LOD 100
 
@@ -68,16 +68,30 @@ Shader "Unlit/SmokeShader"
                 UNITY_SETUP_INSTANCE_ID(i);
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
+                //col = fixed4(1,1,1,1);
+                //col.w = col.x; col.x = 1; col.y = 1; col.z = 1;
                 #ifdef INSTANCING_ON
-                    int id = i.instanceID;
+
+                    int id = i.instanceID + offset;
                     float3 pos = positionbuffer[id] * 100;
+
                     pos = max(pos, float3(0, 0, 0));
                     pos = min(pos, float3(61, 121, 61));
-                    int positionIndex = (int)pos.z * 121 * 61 + (int)pos.y * 61 + (int)pos.x;
-                    float opacity = opacitybuffer[positionIndex];// / 100.0 * 0.2;
-                    //if(opacity== 0)opacity += 0.05;
 
-                    col = col * fixed4(opacity, opacity, opacity,0);
+                    int positionIndex = (int)pos.z * 121 * 61 + (int)pos.y * 61 + (int)pos.x;
+
+                    float opacity = opacitybuffer[positionIndex];
+                    float temp = temperaturebuffer[positionIndex];
+
+                    opacity = min(max(opacity/50.0,0),1);
+                    float transferFunction = min(max((temp*7 - 300) / 1300,0),1);
+
+                    float4 c = lerp(float4(0,0,0,1), float4(1, 0.46, 0.008, 1), transferFunction);
+                    //float4 c = lerp(float4(0,0,0,1), float4(1, 0, 0, 1), min(transferFunction*2,1));
+                    //c = lerp(c, float4(1, 0.92, 0.016, 1), max(transferFunction*2 - 1, 0));
+                    c.w *= opacity;
+                    col = col * c;
+
                 #endif
                 return col;
             }
