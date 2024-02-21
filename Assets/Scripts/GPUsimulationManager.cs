@@ -144,9 +144,12 @@ public class GPUsimulationManager : MonoBehaviour
         particleUpdater.SetBuffer(0, "temps2", temperatureBuffer2);
         particleUpdater.SetBuffer(0, "vel1", velocityBuffer1);
         particleUpdater.SetBuffer(0, "vel2", velocityBuffer2);
+        particleUpdater.SetBuffer(0, "smok1", smokeBuffer1);
+        particleUpdater.SetBuffer(0, "smok2", smokeBuffer2);
 
         particleUpdater.SetFloat("tempfactor", temperatureManager.getInterpolationFactor());
         particleUpdater.SetFloat("velfactor", velocityManager.getInterpolationFactor());
+        particleUpdater.SetFloat("smokfactor", smokeManager.getInterpolationFactor());
         particleUpdater.SetFloat("deltaTime", Time.deltaTime);
         particleUpdater.SetInt("nparticles", nparticles);
 
@@ -184,6 +187,7 @@ public class GPUsimulationManager : MonoBehaviour
             smokematerials[i].SetBuffer("positionbuffer", smokepositionBuffer);
             smokematerials[i].SetBuffer("opacitybuffer", smokeBuffer1);
             smokematerials[i].SetBuffer("temperaturebuffer", temperatureBuffer1);
+            smokematerials[i].SetBuffer("colorbuffer", colorBuffer);
             Graphics.RenderMeshInstanced(new RenderParams(smokematerials[i]), quadmesh, 0, instData, 512, 0);
         }
         //Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData, 512,0);

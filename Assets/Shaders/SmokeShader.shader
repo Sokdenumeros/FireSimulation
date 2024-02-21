@@ -25,6 +25,7 @@ Shader "Unlit/SmokeShader"
 
             #include "UnityCG.cginc"
 
+            StructuredBuffer<float4> colorbuffer;
             StructuredBuffer<float3> positionbuffer;
             StructuredBuffer<float> opacitybuffer;
             StructuredBuffer<float> temperaturebuffer;
@@ -90,7 +91,8 @@ Shader "Unlit/SmokeShader"
                     //float4 c = lerp(float4(0,0,0,1), float4(1, 0, 0, 1), min(transferFunction*2,1));
                     //c = lerp(c, float4(1, 0.92, 0.016, 1), max(transferFunction*2 - 1, 0));
                     c.w *= opacity;
-                    col = col * c;
+                    //col = col * c;
+                    col = col * colorbuffer[id];
 
                 #endif
                 return col;

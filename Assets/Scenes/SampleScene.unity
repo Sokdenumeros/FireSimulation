@@ -285,7 +285,7 @@ MonoBehaviour:
   temperatureManager: {fileID: 881736215}
   smokeManager: {fileID: 881736218}
   velocityManager: {fileID: 881736214}
-  particleUpdater: {fileID: 7200000, guid: 5428341888b629e4cb0b0a030ee8fd39, type: 3}
+  particleUpdater: {fileID: 7200000, guid: c13e6300470ce4642b5f3b406a7cb87a, type: 3}
   fsmat: {fileID: 2100000, guid: b1f11386b3d775d42912c712b5b87a0c, type: 2}
   smokemat: {fileID: 2100000, guid: 4d1dedb494433954b8015d37b27a0891, type: 2}
   quadmesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
