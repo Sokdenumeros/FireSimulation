@@ -138,7 +138,7 @@ public class GPUsimulationManager : MonoBehaviour
         Vector3 big = new Vector3(dimx - 1, dimy - 1, dimz - 1);
         //float factor = (Time.time - timeList.First.Value) * 2;
 
-        particleUpdater.SetBuffer(0, "positions", positionBuffer);
+        particleUpdater.SetBuffer(0, "positions", smokepositionBuffer);
         particleUpdater.SetBuffer(0, "colors", colorBuffer);
         particleUpdater.SetBuffer(0, "temps1", temperatureBuffer1);
         particleUpdater.SetBuffer(0, "temps2", temperatureBuffer2);

@@ -35,10 +35,10 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         pos = min(pos, float3(61, 121, 61));
         int positionIndex = (int)pos.z * 121 * 61 + (int)pos.y * 61 + (int)pos.x;
 
-        //positions[globalIndex] += ((1 - velfactor) * vel1[positionIndex] + velfactor * vel2[positionIndex]) * deltaTime/2;
+        positions[globalIndex] += ((1 - velfactor) * vel1[positionIndex] + velfactor * vel2[positionIndex]) * deltaTime/2;
 
-        float temp =temps1[positionIndex];
-        float opacity =smok1[positionIndex];
+        float temp =((1 - tempfactor) * temps1[positionIndex] + tempfactor * temps2[positionIndex]);
+        float opacity =((1 - smokfactor) * smok1[positionIndex] + smokfactor * smok2[positionIndex]);
 
         opacity = min(max(opacity/50.0,0),1);
         float transferFunction = min(max((temp*7 - 300) / 1300,0),1);
