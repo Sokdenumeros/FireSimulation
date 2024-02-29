@@ -10,7 +10,6 @@ Correct memory leaks
 VR plugin
 Fix frustrum culling
 Adjust number of particles to avoid having extra ones at 0,0,0
-smoke shader
 Change the dot texture by a more complicated cloud
 
 USEFUL LINKS--------------------------------------------------------------

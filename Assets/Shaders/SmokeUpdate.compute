@@ -32,8 +32,8 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
     {
         float3 pos = positions[globalIndex] * 100;
         pos = max(pos, float3(0, 0, 0));
-        pos = min(pos, float3(61, 121, 61));
-        int positionIndex = (int)pos.z * 121 * 61 + (int)pos.y * 61 + (int)pos.x;
+        pos = min(pos, float3(dimensions[0], dimensions[1], dimensions[2]));
+        int positionIndex = (int)pos.z * dimensions[0] * dimensions[1] + (int)pos.y * dimensions[0] + (int)pos.x;
 
         positions[globalIndex] += ((1 - velfactor) * vel1[positionIndex] + velfactor * vel2[positionIndex]) * deltaTime/2;
 

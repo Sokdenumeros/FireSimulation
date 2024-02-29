@@ -59,7 +59,8 @@ Shader "Unlit/SmokeShader"
                     int id = v.instanceID + offset;
                     vert += float4(positionbuffer[id], 0) + float4(1,0,0,0);
                 #endif
-                o.vertex = mul(UNITY_MATRIX_VP, vert);
+                //o.vertex = mul(UNITY_MATRIX_VP, vert);
+                o.vertex = mul(UNITY_MATRIX_VP,vert - float4(_WorldSpaceCameraPos,0));
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
             }
