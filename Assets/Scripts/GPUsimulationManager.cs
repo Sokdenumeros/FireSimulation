@@ -36,8 +36,9 @@ public class GPUsimulationManager : MonoBehaviour
 
     void Start()
     {
-        instData = new Matrix4x4[nparticles];
-        for (int i = 0; i < nparticles; ++i) instData[i] = Matrix4x4.identity;
+        instData = new Matrix4x4[512];
+        for (int i = 0; i < 512; ++i) instData[i] = Matrix4x4.Scale(new Vector3(0.1f, 0.1f, 0.1f));
+
         temperatureBuffer1 = new ComputeBuffer(dimx*dimy*dimz, sizeof(float));
         temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
 
@@ -101,7 +102,7 @@ public class GPUsimulationManager : MonoBehaviour
 
     private void initBuffers()
     {
-        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(0.1f, 0.1f, 0.1f));
+        
         Vector3[] positions = new Vector3[nparticles];
         float exp;
         float[] temps = temperatureManager.getData();
@@ -112,7 +113,6 @@ public class GPUsimulationManager : MonoBehaviour
                     if (index < nparticles && exp > 0.0)
                     {
                         positions[index] = new Vector3((float)x, (float)y, (float)z) / 100.0f;
-                        instData[index] = scaleMatrix;
                         ++index;
                     }
                 }

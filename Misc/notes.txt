@@ -12,6 +12,13 @@ Fix frustrum culling
 Adjust number of particles to avoid having extra ones at 0,0,0
 Change the dot texture by a more complicated cloud
 
+THINGS TO TWEAK-----------------------------------------------------------
+size of the particles
+transfer function
+colors to blend between
+opacity
+density/number of particles
+
 USEFUL LINKS--------------------------------------------------------------
 https://docs.unity3d.com/Manual/SL-UnityShaderVariables.html
 https://docs.unity3d.com/Manual/SL-BuiltinFunctions.html

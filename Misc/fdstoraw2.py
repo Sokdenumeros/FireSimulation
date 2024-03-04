@@ -11,7 +11,7 @@ def extract_f32_data(data_element,name,timestep):
         if time - previous >= timestep:
             flattened_data = data[i].flatten()
             flattened_data.astype(np.float32).tofile(name + f'_T{time:.1f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw')
-            previous = time
+            previous = round(time,2)
 
 def extract_v3_data(de1, de2, de3, name,timestep):
     times = de1.times
@@ -27,14 +27,16 @@ def extract_v3_data(de1, de2, de3, name,timestep):
         if time - previous >= timestep:
             flattened_data = vectors[i].flatten()
             flattened_data.astype(np.float32).tofile(name + f'_T{time:.1f}_.' + str(vectors.shape[1]) + '.' + str(vectors.shape[2]) + '.' + str(vectors.shape[3]) + '.raw')
-            previous = time
+            previous = round(time,2)
 
 
 # Load FDS simulation
 sim = fdsreader.Simulation('./NIST_PoolFire/')
 
-extract_f32_data(sim.slices[3],'temperature',0)
+extract_f32_data(sim.slices[3],'temperature',0.5)
 
-extract_v3_data(sim.slices[0],sim.slices[1],sim.slices[2],'velocity',0)
+extract_v3_data(sim.slices[0],sim.slices[1],sim.slices[2],'velocity',0.5)
 
 extract_f32_data(sim.smoke_3d[0],'smoke',0.5)
+
+extract_f32_data(sim.smoke_3d[1],'hrpuv',0.5)
