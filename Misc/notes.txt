@@ -11,6 +11,7 @@ VR plugin
 Fix frustrum culling
 Adjust number of particles to avoid having extra ones at 0,0,0
 Change the dot texture by a more complicated cloud
+From buffer to texture 3D = smoother, hardware accelerated samples
 
 THINGS TO TWEAK-----------------------------------------------------------
 size of the particles
