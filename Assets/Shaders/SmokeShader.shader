@@ -30,6 +30,7 @@ Shader "Unlit/SmokeShader"
             StructuredBuffer<float> opacitybuffer;
             StructuredBuffer<float> temperaturebuffer;
             int offset;
+            float4 camposition;
 
             struct appdata
             {
@@ -57,10 +58,14 @@ Shader "Unlit/SmokeShader"
                 vert = mul(unity_ObjectToWorld, vert);
                 #ifdef INSTANCING_ON
                     int id = v.instanceID + offset;
-                    vert += float4(positionbuffer[id], 0) + float4(1,0,0,0);
+                    float3 forward = normalize(camposition - positionbuffer[id]);
+                    float3 right = cross(forward, float3(0,1,0));
+                    float3 up = cross(right, forward);
+                    float3x3 rotationMatrix = float3x3(right, up, forward);
+                    //vert = mul(unity_ObjectToWorld, float4(mul(rotationMatrix,v.vertex.xyz),v.vertex.w)) + float4(positionbuffer[id], 0);
+                    vert += float4(positionbuffer[id], 0);
                 #endif
-                //o.vertex = mul(UNITY_MATRIX_VP, vert);
-                o.vertex = mul(UNITY_MATRIX_VP,vert - float4(_WorldSpaceCameraPos,0));
+                o.vertex = mul(UNITY_MATRIX_VP,vert);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
             }

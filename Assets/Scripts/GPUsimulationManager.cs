@@ -33,6 +33,7 @@ public class GPUsimulationManager : MonoBehaviour
 
     public int nparticles;
     // Start is called before the first frame update
+    public GameObject cam;
 
     void Start()
     {
@@ -102,22 +103,7 @@ public class GPUsimulationManager : MonoBehaviour
 
     private void initBuffers()
     {
-        
-        Vector3[] positions = new Vector3[nparticles];
-        float exp;
-        float[] temps = temperatureManager.getData();
         int index = 0;
-        for (int z = 0; z < dimz; z += 1) for (int y = 0; y < dimy && index < nparticles; y += 1) for (int x = 0; x < dimx; x += 1)
-                {
-                    exp = (temps[z * dimy * dimx + y * dimx + x] - 300) / 1300;
-                    if (index < nparticles && exp > 0.0)
-                    {
-                        positions[index] = new Vector3((float)x, (float)y, (float)z) / 100.0f;
-                        ++index;
-                    }
-                }
-        positionBuffer.SetData(positions);
-
         Vector3[] smokepositions = new Vector3[nparticles];
         float[] densities = smokeManager.getData();
         index = 0;
@@ -131,6 +117,20 @@ public class GPUsimulationManager : MonoBehaviour
                 }
         Debug.Log(index);
         smokepositionBuffer.SetData(smokepositions);
+
+        /*Vector3[] positions = new Vector3[nparticles];
+        float exp;
+        float[] temps = temperatureManager.getData();
+        for (int z = 0; z < dimz; z += 1) for (int y = 0; y < dimy && index < nparticles; y += 1) for (int x = 0; x < dimx; x += 1)
+                {
+                    exp = (temps[z * dimy * dimx + y * dimx + x] - 300) / 1300;
+                    if (index < nparticles && exp > 0.0)
+                    {
+                        positions[index] = new Vector3((float)x, (float)y, (float)z) / 100.0f;
+                        ++index;
+                    }
+                }
+        positionBuffer.SetData(positions);*/
     }
 
     private void updateParticles()
@@ -167,7 +167,8 @@ public class GPUsimulationManager : MonoBehaviour
         fsmat.SetBuffer("positionbuffer", positionBuffer);
 
         RenderParams rp = new RenderParams(fsmat);*/
-        Material[] materials = new Material[40];
+
+        /*Material[] materials = new Material[40];
 
         for (int i = 0; i < 40; i++)
         {
@@ -176,11 +177,10 @@ public class GPUsimulationManager : MonoBehaviour
             materials[i].SetBuffer("colorbuffer", colorBuffer);
             materials[i].SetBuffer("positionbuffer", positionBuffer);
             Graphics.RenderMeshInstanced(new RenderParams(materials[i]), quadmesh, 0, instData, 512, 0);
-        }
+        }*/
 
-        Material[] smokematerials = new Material[40];
-
-        for (int i = 0; i < 40; i++)
+        Material[] smokematerials = new Material[(int)nparticles/511 + 1];
+        for (int i = 0; i*511 < nparticles; i++)
         {
             smokematerials[i] = new Material(smokemat);
             smokematerials[i].SetInt("offset", i * 511);
@@ -188,6 +188,7 @@ public class GPUsimulationManager : MonoBehaviour
             smokematerials[i].SetBuffer("opacitybuffer", smokeBuffer1);
             smokematerials[i].SetBuffer("temperaturebuffer", temperatureBuffer1);
             smokematerials[i].SetBuffer("colorbuffer", colorBuffer);
+            smokematerials[i].SetVector("camposition", cam.transform.position);
             Graphics.RenderMeshInstanced(new RenderParams(smokematerials[i]), quadmesh, 0, instData, 512, 0);
         }
         //Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData, 512,0);

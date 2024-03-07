@@ -21,6 +21,7 @@ opacity
 density/number of particles
 
 USEFUL LINKS--------------------------------------------------------------
+https://discussions.unity.com/t/disable-frustum-culling/11018/11
 https://docs.unity3d.com/Manual/SL-UnityShaderVariables.html
 https://docs.unity3d.com/Manual/SL-BuiltinFunctions.html
 https://docs.unity3d.com/ScriptReference/ComputeBufferMode.html
