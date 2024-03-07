@@ -62,8 +62,8 @@ Shader "Unlit/SmokeShader"
                     float3 right = cross(forward, float3(0,1,0));
                     float3 up = cross(right, forward);
                     float3x3 rotationMatrix = float3x3(right, up, forward);
-                    //vert = mul(unity_ObjectToWorld, float4(mul(rotationMatrix,v.vertex.xyz),v.vertex.w)) + float4(positionbuffer[id], 0);
-                    vert += float4(positionbuffer[id], 0);
+                    vert = mul(unity_ObjectToWorld, float4(mul(rotationMatrix,v.vertex.xyz),v.vertex.w)) + float4(positionbuffer[id], 0);
+                    //vert += float4(positionbuffer[id], 0);
                 #endif
                 o.vertex = mul(UNITY_MATRIX_VP,vert);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
