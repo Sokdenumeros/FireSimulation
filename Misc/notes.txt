@@ -13,6 +13,9 @@ Adjust number of particles to avoid having extra ones at 0,0,0
 Change the dot texture by a more complicated cloud
 From buffer to texture 3D = smoother, hardware accelerated samples
 
+RenderParams rp = new RenderParams(material);
+rp.worldBounds = new Bounds(Vector3.zero, 10000*Vector3.one); // use tighter bounds for better FOV culling
+
 THINGS TO TWEAK-----------------------------------------------------------
 size of the particles
 transfer function
