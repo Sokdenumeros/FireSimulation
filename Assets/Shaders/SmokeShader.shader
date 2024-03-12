@@ -24,13 +24,14 @@ Shader "Unlit/SmokeShader"
             #pragma multi_compile_instancing
 
             #include "UnityCG.cginc"
+            #define UNITY_INDIRECT_DRAW_ARGS IndirectDrawIndexedArgs
+            #include "UnityIndirect.cginc"
 
             StructuredBuffer<float4> colorbuffer;
             StructuredBuffer<float3> positionbuffer;
-            StructuredBuffer<float> opacitybuffer;
-            StructuredBuffer<float> temperaturebuffer;
             int offset;
             float4 camposition;
+            float particleSize;
 
             struct appdata
             {
@@ -44,18 +45,20 @@ Shader "Unlit/SmokeShader"
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
+                int indexid : PART_INDEX;
             };
             
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
-            v2f vert (appdata v)
+            v2f vert (appdata v, uint svInstanceID : SV_InstanceID)
             {
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 float4 vert = v.vertex;
                 vert = mul(unity_ObjectToWorld, vert);
+                
                 #ifdef INSTANCING_ON
                     int id = v.instanceID + offset;
                     float3 forward = normalize(camposition - positionbuffer[id]);
@@ -65,8 +68,20 @@ Shader "Unlit/SmokeShader"
                     vert = mul(unity_ObjectToWorld, float4(mul(rotationMatrix,v.vertex.xyz),v.vertex.w)) + float4(positionbuffer[id], 0);
                     //vert += float4(positionbuffer[id], 0);
                 #endif
+                
+
+                
+                int id = GetIndirectInstanceID(svInstanceID);
+                float3 forward = normalize(camposition - positionbuffer[id]);
+                float3 right = cross(forward, float3(0,1,0));
+                float3 up = cross(right, forward);
+                float3x3 rotationMatrix = float3x3(right, up, forward);
+                vert = float4(mul(rotationMatrix,v.vertex.xyz * particleSize),v.vertex.w) + float4(positionbuffer[id], 0);
+                
+
                 o.vertex = mul(UNITY_MATRIX_VP,vert);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.indexid = id;
                 return o;
             }
 
@@ -77,10 +92,17 @@ Shader "Unlit/SmokeShader"
                 fixed4 col = tex2D(_MainTex, i.uv);
                 //col = fixed4(1,1,1,1);
                 //col.w = col.x; col.x = 1; col.y = 1; col.z = 1;
+
+
+                
                 #ifdef INSTANCING_ON
                     int id = i.instanceID + offset;
                     col = col * colorbuffer[id];
                 #endif
+                
+
+                col = col * colorbuffer[i.indexid];
+
                 return col;
             }
             ENDCG

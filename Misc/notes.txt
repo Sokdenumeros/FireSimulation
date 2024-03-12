@@ -12,6 +12,12 @@ Fix frustrum culling
 Adjust number of particles to avoid having extra ones at 0,0,0
 Change the dot texture by a more complicated cloud
 From buffer to texture 3D = smoother, hardware accelerated samples
+Change drawing order based on camera position
+Change fov culling so it works even on the scene camera
+Look up all the shader tags
+Remove lines that were only used for the instanced drawing
+Profile performance
+Optimizations: reduce number of data copies and number of buffer assignments
 
 RenderParams rp = new RenderParams(material);
 rp.worldBounds = new Bounds(Vector3.zero, 10000*Vector3.one); // use tighter bounds for better FOV culling
