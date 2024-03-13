@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class GPUsimulationManager : MonoBehaviour
 {
-    public int dimx, dimy, dimz;
-
+    //DATA MANAGERS
     public floatLoader temperatureManager;
     public floatLoader smokeManager;
     public vectorLoader velocityManager;
 
+    //DRAW ASSETS
     public ComputeShader particleUpdater;
-
     public Material smokemat;
     public Mesh quadmesh;
-    Matrix4x4[] instData;
+    //Matrix4x4[] instData;
 
+    //BUFFERS
     ComputeBuffer temperatureBuffer1;
     ComputeBuffer temperatureBuffer2;
 
@@ -29,17 +29,24 @@ public class GPUsimulationManager : MonoBehaviour
     ComputeBuffer smokepositionBuffer;
     ComputeBuffer colorBuffer;
 
+    //PARAMETERS
     public int nparticles;
     public float particleSize;
     public GameObject cam;
-    
-    private int index;
+    public int dimx, dimy, dimz;
 
+    //OTHER
+    private int index;
+    private Material mat;
+    private GraphicsBuffer commandBuf;
+    private GraphicsBuffer.IndirectDrawIndexedArgs[] commandData;
 
     void Start()
     {
-        instData = new Matrix4x4[512];
-        for (int i = 0; i < 512; ++i) instData[i] = Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize));
+        
+        //instData = new Matrix4x4[512];
+        //for (int i = 0; i < 512; ++i) instData[i] = Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize));
+        
 
         temperatureBuffer1 = new ComputeBuffer(dimx*dimy*dimz, sizeof(float));
         temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
@@ -69,6 +76,20 @@ public class GPUsimulationManager : MonoBehaviour
         velocityBuffer2.SetData(velocityManager.getNextData());
 
         initBuffers();
+
+        particleUpdater.SetBuffer(0, "positions", smokepositionBuffer);
+        particleUpdater.SetBuffer(0, "colors", colorBuffer);
+
+        mat = new Material(smokemat);
+        mat.SetBuffer("positionbuffer", smokepositionBuffer);
+        mat.SetBuffer("colorbuffer", colorBuffer);
+        mat.SetFloat("particleSize", particleSize);
+
+        commandBuf = new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments, 1, GraphicsBuffer.IndirectDrawIndexedArgs.size);
+        commandData = new GraphicsBuffer.IndirectDrawIndexedArgs[1];
+        commandData[0].indexCountPerInstance = quadmesh.GetIndexCount(0);
+
+        
     }
 
     // Update is called once per frame
@@ -80,7 +101,7 @@ public class GPUsimulationManager : MonoBehaviour
         {
             temperatureBuffer1.SetData(temperatureManager.getData());
             temperatureBuffer2.SetData(temperatureManager.getNextData());
-            redoBuffers = true;
+            //redoBuffers = true;
         }
 
         if (smokeManager.checkTimeInterval())
@@ -94,7 +115,7 @@ public class GPUsimulationManager : MonoBehaviour
         {
             velocityBuffer1.SetData(velocityManager.getData());
             velocityBuffer2.SetData(velocityManager.getNextData());
-            redoBuffers = true;
+            //redoBuffers = true;
         }
 
         if (redoBuffers) initBuffers();
@@ -121,8 +142,6 @@ public class GPUsimulationManager : MonoBehaviour
 
     private void updateParticles()
     {
-        particleUpdater.SetBuffer(0, "positions", smokepositionBuffer);
-        particleUpdater.SetBuffer(0, "colors", colorBuffer);
         particleUpdater.SetBuffer(0, "temps1", temperatureBuffer1);
         particleUpdater.SetBuffer(0, "temps2", temperatureBuffer2);
         particleUpdater.SetBuffer(0, "vel1", velocityBuffer1);
@@ -155,26 +174,17 @@ public class GPUsimulationManager : MonoBehaviour
             smokematerials[i].SetBuffer("positionbuffer", smokepositionBuffer);
             smokematerials[i].SetBuffer("colorbuffer", colorBuffer);
             smokematerials[i].SetVector("camposition", cam.transform.position);
-            //Graphics.RenderMeshInstanced(new RenderParams(smokematerials[i]), quadmesh, 0, instData, 512, 0);
+            Graphics.RenderMeshInstanced(new RenderParams(smokematerials[i]), quadmesh, 0, instData, 512, 0);
         }*/
         
-        
-        Material mat = new Material(smokemat);
-        mat.SetBuffer("positionbuffer", smokepositionBuffer);
-        mat.SetBuffer("colorbuffer", colorBuffer);
+        commandData[0].instanceCount = (uint)index;
+        commandBuf.SetData(commandData);
+                
         mat.SetVector("camposition", cam.transform.position);
-        mat.SetFloat("particleSize", particleSize);
         RenderParams rp = new RenderParams(mat);
         //rp.worldBounds = new Bounds(-10000*Vector3.one, 10000*Vector3.one); // use tighter bounds for better FOV culling
         //rp.matProps = new MaterialPropertyBlock();
         //rp.matProps.SetMatrix("_ObjectToWorld", Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize)));
-
-        GraphicsBuffer commandBuf = new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments, 1, GraphicsBuffer.IndirectDrawIndexedArgs.size);
-        GraphicsBuffer.IndirectDrawIndexedArgs[] commandData = new GraphicsBuffer.IndirectDrawIndexedArgs[1];
-
-        commandData[0].indexCountPerInstance = quadmesh.GetIndexCount(0);
-        commandData[0].instanceCount = (uint)index;
-        commandBuf.SetData(commandData);
         Graphics.RenderMeshIndirect(rp, quadmesh, commandBuf, 1);
         
         
