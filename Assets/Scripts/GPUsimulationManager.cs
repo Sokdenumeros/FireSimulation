@@ -189,4 +189,19 @@ public class GPUsimulationManager : MonoBehaviour
         
         
     }
+
+    void OnDestroy(){
+        temperatureBuffer1.Release();
+        temperatureBuffer2.Release();
+        smokeBuffer1.Release();
+        smokeBuffer2.Release();
+
+        velocityBuffer1.Release();
+        velocityBuffer2.Release();
+
+        positionBuffer.Release();
+        smokepositionBuffer.Release();
+        colorBuffer.Release();
+        commandBuf.Release();
+    }
 }
