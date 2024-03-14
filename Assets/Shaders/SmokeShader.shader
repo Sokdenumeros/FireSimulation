@@ -45,7 +45,7 @@ Shader "Unlit/SmokeShader"
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
-                int indexid : PART_INDEX;
+                float4 pcolor : PARTICLE_COLOR;
             };
             
             sampler2D _MainTex;
@@ -54,8 +54,8 @@ Shader "Unlit/SmokeShader"
             v2f vert (appdata v, uint svInstanceID : SV_InstanceID)
             {
                 v2f o;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
+                //UNITY_SETUP_INSTANCE_ID(v);
+                //UNITY_TRANSFER_INSTANCE_ID(v, o);
                 float4 vert = v.vertex;
                 vert = mul(unity_ObjectToWorld, vert);
                 
@@ -81,7 +81,7 @@ Shader "Unlit/SmokeShader"
 
                 o.vertex = mul(UNITY_MATRIX_VP,vert);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.indexid = id;
+                o.pcolor = colorbuffer[id];
                 return o;
             }
 
@@ -100,10 +100,7 @@ Shader "Unlit/SmokeShader"
                     col = col * colorbuffer[id];
                 #endif
                 
-
-                col = col * colorbuffer[i.indexid];
-
-                return col;
+                return col*i.pcolor;
             }
             ENDCG
         }
