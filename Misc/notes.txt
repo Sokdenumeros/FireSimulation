@@ -19,6 +19,8 @@ Remove lines that were only used for the instanced drawing
 Profile performance
 Optimizations: reduce number of data copies and number of buffer assignments
 Python can't load entrepinos because there's 120Gb of data
+	adjust unity script to work without velocities
+	improve python script
 
 RenderParams rp = new RenderParams(material);
 rp.worldBounds = new Bounds(Vector3.zero, 10000*Vector3.one); // use tighter bounds for better FOV culling
@@ -40,6 +42,8 @@ https://firedynamics.github.io/fdsreader/index.html
 IDEAS THAT I WILL PROBABLY NEVER NEED AGAIN:-------------------------------
 Dynamic batching (use renderer.sharedmaterial)
 Unity VFX
+Raycasting 
+Gaussian Splatting
 
 optimal transport interpolation
 
