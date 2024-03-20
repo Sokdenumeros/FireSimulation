@@ -5,7 +5,8 @@ TRANSPARENT SHADER
 2 pass RevSub and Add shader
 
 THINGS TO DO-------------------------------------------------------------
-Rotate particles so they look at the camera
+Need to paint the particles in order because fire looks diferent depending on the order(sort of)
+Rotate particles so they look at the camera -- NOT WORKING
 Correct memory leaks
 Adjust number of particles to avoid having extra ones at 0,0,0
 Change fov culling so it works even on the scene camera
@@ -25,6 +26,10 @@ Python can't load entrepinos because there's 120Gb of data
 RenderParams rp = new RenderParams(material);
 rp.worldBounds = new Bounds(Vector3.zero, 10000*Vector3.one); // use tighter bounds for better FOV culling
 
+THINGS TO REDUCE NUMBER OF FRAGMENTS--------------------------------------
+double opacity and half particles
+
+
 THINGS TO TWEAK-----------------------------------------------------------
 size of the particles
 transfer function
@@ -38,6 +43,10 @@ https://docs.unity3d.com/Manual/SL-UnityShaderVariables.html
 https://docs.unity3d.com/Manual/SL-BuiltinFunctions.html
 https://docs.unity3d.com/ScriptReference/ComputeBufferMode.html
 https://firedynamics.github.io/fdsreader/index.html
+https://forum.unity.com/threads/state-of-the-art-parallel-sorting-in-compute-shaders-updated-for-portability.1480920/
+https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/
+https://github.com/FireDynamics/VRSmokeVis/wiki/Smoke-Rendering
+j.vogelsang@fz-juelich.de
 
 IDEAS THAT I WILL PROBABLY NEVER NEED AGAIN:-------------------------------
 Dynamic batching (use renderer.sharedmaterial)
@@ -48,3 +57,8 @@ Gaussian Splatting
 optimal transport interpolation
 
 https://docs.unity3d.com/Manual/materialvariant-concept.html
+
+THINGS TO FIX ABOUT THE FDSREADER------------------------------------------
+global_max is not needed since it is exactly the same as coord_max
+why does it only calculate n_repeat if masked? it should repeat the array as long as it has different step size regardless of the mask
+why use axis+1? "axis" should be the correct axis
