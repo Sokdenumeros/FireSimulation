@@ -8,6 +8,7 @@ import math
 
 def extract_f32_data(data_element,name,timestep):
     data = to_global(data_element,masked = True)
+    return
     times = data_element.times
     data = np.transpose(data,(0,2,3,1))
 
@@ -74,18 +75,39 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
     grid = np.full((smk3d.n_t, steps['x'], steps['y'], steps['z']), np.nan)
 
     for subsmoke in smk3d._subsmokes.values():
-        if subsmoke.mesh.coordinates['x'][1] - subsmoke.mesh.coordinates['x'][0] > 1.5*step_sizes_min['x']:
-            continue
-        if subsmoke.mesh.coordinates['y'][1] - subsmoke.mesh.coordinates['y'][0] > 1.5*step_sizes_min['y']:
-            continue
-        if subsmoke.mesh.coordinates['z'][1] - subsmoke.mesh.coordinates['z'][0] > 1.5*step_sizes_min['z']:
-            continue
+        #if subsmoke.mesh.coordinates['x'][1] - subsmoke.mesh.coordinates['x'][0] > 1.5*step_sizes_min['x']:
+        #    continue
+        #if subsmoke.mesh.coordinates['y'][1] - subsmoke.mesh.coordinates['y'][0] > 1.5*step_sizes_min['y']:
+        #    continue
+        #if subsmoke.mesh.coordinates['z'][1] - subsmoke.mesh.coordinates['z'][0] > 1.5*step_sizes_min['z']:
+        #    continue
         subsmoke_data = subsmoke.data.copy()
+        print("SUBSMOKE SHAPE: " + str(subsmoke_data.shape))
         if masked:
             mask = subsmoke.mesh.get_obstruction_mask(smk3d.times)
 
         start_idx = {dim: int(round((subsmoke.mesh.coordinates[dim][0] - coord_min[dim]) / step_sizes_min[dim])) for dim in ('x', 'y', 'z')}
         end_idx = {dim: int(round((subsmoke.mesh.coordinates[dim][-1] - coord_min[dim]) / step_sizes_min[dim])) for dim in ('x', 'y', 'z')}
+
+            # We ignore border points unless they are actually on the border of the simulation space as all
+            # other border points actually appear twice, as the subslices overlap. This only
+            # applies for face_centered slices, as cell_centered slices will not overlap.
+        reduced_shape_slices = (slice(subsmoke.data.shape[0]),) + tuple(slice(1, None) for s in subsmoke.data.shape[1:])
+        subsmoke_data = subsmoke_data[reduced_shape_slices]
+        print("REDUCED SUBSMOKE SHAPE: " + str(subsmoke_data.shape))
+        #THIS SHOULD BE INSIDE A LOOP THAT ITERATES OVER ALL DIMS/AXES
+        if masked:
+            mask = mask[reduced_shape_slices]
+
+            n_repeat = max(int(round((subsmoke.mesh.coordinates[dim][1] - subsmoke.mesh.coordinates[dim][0]) /step_sizes_min[dim])), 1)
+            print("REPEATS: "+str(n_repeat))
+            print("MINSTEP: "+str(step_sizes_min[dim]))
+            print("STEP: "+str(subsmoke.mesh.coordinates[dim][1] - subsmoke.mesh.coordinates[dim][0]))
+            if n_repeat > 1:
+                subsmoke_data = np.repeat(subsmoke_data, n_repeat, axis=axis + 1)
+                print("REPEATED SUBSMOKE SHAPE: " + str(subsmoke_data.shape))
+                if masked:
+                    mask = np.repeat(mask, n_repeat, axis=axis + 1)
 
         temp_data = dict()
         temp_mask = dict()
@@ -100,38 +122,29 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
                 if masked:
                     temp_mask[dim] = mask[tuple(temp_data_slices)]
 
-            # We ignore border points unless they are actually on the border of the simulation space as all
-            # other border points actually appear twice, as the subslices overlap. This only
-            # applies for face_centered slices, as cell_centered slices will not overlap.
-        reduced_shape_slices = (slice(subsmoke.data.shape[0]),) + tuple(slice(1, None) for s in subsmoke.data.shape[1:])
-        subsmoke_data = subsmoke_data[reduced_shape_slices]
-        if masked:
-            mask = mask[reduced_shape_slices]
-
-            n_repeat = max(int(round((subsmoke.mesh.coordinates[dim][1] - subsmoke.mesh.coordinates[dim][0]) /step_sizes_min[dim])), 1)
-            if n_repeat > 1:
-                subsmoke_data = np.repeat(subsmoke_data, n_repeat, axis=axis + 1)
-                if masked:
-                    mask = np.repeat(mask, n_repeat, axis=axis + 1)
-
         for axis in range(3):
             dim = ('x', 'y', 'z')[axis]
                 # Add border points back again if needed
             if np.isclose(subsmoke.mesh.coordinates[dim][-1], global_max[dim]):
                 temp_data_slices = [slice(s) for s in subsmoke_data.shape]
                 temp_data_slices[axis + 1] = slice(None)
+                print("SUBSMOKE FINAL SHAPE: " + str(subsmoke_data.shape))
+                print("TEMPDATA FINAL SHAPE: " + str(temp_data[dim][tuple(temp_data_slices)].shape))
+                print("AXIS: " + str(axis+1))
                 subsmoke_data = np.concatenate((subsmoke_data, temp_data[dim][tuple(temp_data_slices)]), axis=axis + 1)
                 if masked:
                     mask = np.concatenate((mask, temp_mask[dim][tuple(temp_data_slices)]), axis=axis + 1)
 
             # If the slice should be masked, we set all cells at which an obstruction is in the
             # simulation space to the fill value set by the user
+        print("SUBSMOKE AFTER CONCAT: " + str(subsmoke_data.shape))
         if masked:
             subsmoke_data = np.where(mask, subsmoke_data, fill)
+            print("SUBSMOKE AFTER MASK: " + str(subsmoke_data.shape))
 
         grid[:, start_idx['x']: end_idx['x'], start_idx['y']: end_idx['y'],
         start_idx['z']: end_idx['z']] = subsmoke_data.reshape((smk3d.n_t, end_idx['x'] - start_idx['x'], end_idx['y'] - start_idx['y'],end_idx['z'] - start_idx['z']))
-
+    print("------------------------")
     if return_coordinates:
         coordinates = dict()
         for dim_index, dim in enumerate(('x', 'y', 'z')):
@@ -151,4 +164,4 @@ sim = fdsreader.Simulation('./Entrepinos HF LC 7.6.5/')
 
 extract_f32_data(sim.smoke_3d[0],'smokePinos',0.5)
 
-extract_f32_data(sim.smoke_3d[1],'hrpuvPinos',0.5)
+#extract_f32_data(sim.smoke_3d[1],'hrpuvPinos',0.5)

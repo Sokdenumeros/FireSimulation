@@ -61,4 +61,3 @@ https://docs.unity3d.com/Manual/materialvariant-concept.html
 THINGS TO FIX ABOUT THE FDSREADER------------------------------------------
 global_max is not needed since it is exactly the same as coord_max
 why does it only calculate n_repeat if masked? it should repeat the array as long as it has different step size regardless of the mask
-why use axis+1? "axis" should be the correct axis

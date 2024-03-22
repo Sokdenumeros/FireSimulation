@@ -280,9 +280,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a95a4eccbed2d445811e003e66e5cdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dimx: 61
-  dimy: 121
-  dimz: 61
   temperatureManager: {fileID: 881736215}
   smokeManager: {fileID: 881736218}
   velocityManager: {fileID: 881736214}
@@ -290,8 +287,11 @@ MonoBehaviour:
   smokemat: {fileID: 2100000, guid: 4d1dedb494433954b8015d37b27a0891, type: 2}
   quadmesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   nparticles: 130000
-  particleSize: 0.1
+  particleSize: 0.05
   cam: {fileID: 963194225}
+  dimx: 61
+  dimy: 121
+  dimz: 61
 --- !u!4 &881736217
 Transform:
   m_ObjectHideFlags: 0
