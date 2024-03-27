@@ -98,7 +98,9 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
         #THIS SHOULD BE INSIDE A LOOP THAT ITERATES OVER ALL DIMS/AXES
         if masked:
             mask = mask[reduced_shape_slices]
-
+        
+        for axis in range(3):
+            dim = ('x', 'y', 'z')[axis]
             n_repeat = max(int(round((subsmoke.mesh.coordinates[dim][1] - subsmoke.mesh.coordinates[dim][0]) /step_sizes_min[dim])), 1)
             print("REPEATS: "+str(n_repeat))
             print("MINSTEP: "+str(step_sizes_min[dim]))
