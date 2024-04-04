@@ -46,7 +46,7 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         float4 c = lerp(float4(0,0,0,1), float4(1, 0.46, 0.008, 1), transferFunction);
         //float4 c = lerp(float4(0,0,0,1), float4(1, 0, 0, 1), min(transferFunction*2,1));
         //c = lerp(c, float4(1, 0.92, 0.016, 1), max(transferFunction*2 - 1, 0));
-        c.w *= opacity;
+        c.w *= opacity/10;
 
         colors[globalIndex] = c;
     }

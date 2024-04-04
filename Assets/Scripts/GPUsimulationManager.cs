@@ -127,10 +127,11 @@ public class GPUsimulationManager : MonoBehaviour
     {
         Vector3[] smokepositions = new Vector3[nparticles];
         float[] densities = smokeManager.getData();
-        index = 0;
-        for (int z = dimz-1; z > -1; z -= 1) for (int y = 0; y < dimy && index < nparticles; y += 1) for (int x = 0; x < dimx; x += 1)
+        smokepositions[0] = new Vector3(0.0f,0.0f,0.0f);
+        index = 1;
+        for (int z = dimz-1; z > -1; z -= 3) for (int y = 0; y < dimy && index < nparticles; y += 3) for (int x = 0; x < dimx; x += 3)
                 {
-                    if (index < nparticles && densities[z * dimy * dimx + y * dimx + x] > 0)
+                    if (index < nparticles && densities[z * dimy * dimx + y * dimx + x] > 9)
                     {
                         smokepositions[index] = new Vector3((float)x, (float)y, (float)z) / 100.0f;
                         ++index;
