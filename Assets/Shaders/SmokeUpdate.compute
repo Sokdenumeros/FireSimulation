@@ -24,6 +24,12 @@ StructuredBuffer<float> smok2;
 RWStructuredBuffer<float3> positions;
 RWStructuredBuffer<float4> colors;
 
+float random (float2 uv)
+{
+    //return frac(sin(dot(uv,float2(12.9898,78.233)))*43758.5453123);
+    return frac(dot(uv,float2(12.9898,78.233))*43758.5453123);
+}
+
 [numthreads(8,8,8)]
 void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
 {
@@ -35,10 +41,13 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         pos = min(pos, float3(dimensions[0], dimensions[1], dimensions[2]));
         int positionIndex = (int)pos.z * dimensions[0] * dimensions[1] + (int)pos.y * dimensions[0] + (int)pos.x;
 
-        positions[globalIndex] += ((1 - velfactor) * vel1[positionIndex] + velfactor * vel2[positionIndex]) * deltaTime/2;
-
         float temp =((1 - tempfactor) * temps1[positionIndex] + tempfactor * temps2[positionIndex]);
         float opacity =((1 - smokfactor) * smok1[positionIndex] + smokfactor * smok2[positionIndex]);
+
+        /*if( ((1 - smokfactor) * smok1[positionIndex] + smokfactor * smok2[positionIndex]) < 10 ) {
+            positions[globalIndex] = float3(dimensions[0], dimensions[1], dimensions[2]) * float3(random(pos.xy), random(pos.yz), random(pos.xz));
+        }
+        else */positions[globalIndex] += ((1 - velfactor) * vel1[positionIndex] + velfactor * vel2[positionIndex]) * deltaTime/2;
 
         opacity = min(max(opacity/50.0,0),1);
         float transferFunction = min(max((temp*7 - 300) / 1300,0),1);
@@ -46,7 +55,7 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         float4 c = lerp(float4(0,0,0,1), float4(1, 0.46, 0.008, 1), transferFunction);
         //float4 c = lerp(float4(0,0,0,1), float4(1, 0, 0, 1), min(transferFunction*2,1));
         //c = lerp(c, float4(1, 0.92, 0.016, 1), max(transferFunction*2 - 1, 0));
-        c.w *= opacity/10;
+        c.w *= opacity/2;
 
         colors[globalIndex] = c;
     }

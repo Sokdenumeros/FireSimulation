@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class GPUsimulationManager : MonoBehaviour
 {
@@ -18,12 +19,15 @@ public class GPUsimulationManager : MonoBehaviour
     //BUFFERS
     ComputeBuffer temperatureBuffer1;
     ComputeBuffer temperatureBuffer2;
+    ComputeBuffer temperatureBuffer3;
 
     ComputeBuffer smokeBuffer1;
     ComputeBuffer smokeBuffer2;
+    ComputeBuffer smokeBuffer3;
 
     ComputeBuffer velocityBuffer1;
     ComputeBuffer velocityBuffer2;
+    ComputeBuffer velocityBuffer3;
 
     ComputeBuffer positionBuffer;
     ComputeBuffer smokepositionBuffer;
@@ -48,14 +52,17 @@ public class GPUsimulationManager : MonoBehaviour
         //for (int i = 0; i < 512; ++i) instData[i] = Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize));
         
 
-        temperatureBuffer1 = new ComputeBuffer(dimx*dimy*dimz, sizeof(float));
+        temperatureBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
         temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
+        temperatureBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
 
-        smokeBuffer1 = new ComputeBuffer(dimx*dimy*dimz, sizeof(float));
+        smokeBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
         smokeBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
+        smokeBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
 
         velocityBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
         velocityBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
+        velocityBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
 
         positionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
         smokepositionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
@@ -66,14 +73,17 @@ public class GPUsimulationManager : MonoBehaviour
         temperatureManager.initialize();
         temperatureBuffer1.SetData(temperatureManager.getData());
         temperatureBuffer2.SetData(temperatureManager.getNextData());
+        temperatureBuffer3.SetData(temperatureManager.getThirdData());
 
         smokeManager.initialize();
         smokeBuffer1.SetData(smokeManager.getData());
         smokeBuffer2.SetData(smokeManager.getNextData());
+        smokeBuffer3.SetData(smokeManager.getThirdData());
 
         velocityManager.initialize();
         velocityBuffer1.SetData(velocityManager.getData());
         velocityBuffer2.SetData(velocityManager.getNextData());
+        velocityBuffer3.SetData(velocityManager.getThirdData());
 
         initBuffers();
 
@@ -99,22 +109,31 @@ public class GPUsimulationManager : MonoBehaviour
 
         if (temperatureManager.checkTimeInterval())
         {
-            temperatureBuffer1.SetData(temperatureManager.getData());
-            temperatureBuffer2.SetData(temperatureManager.getNextData());
-            //redoBuffers = true;
+            ComputeBuffer aux = temperatureBuffer1;
+            temperatureBuffer1 = temperatureBuffer2;
+            temperatureBuffer2 = temperatureBuffer3;
+            temperatureBuffer3 = aux;
+            temperatureBuffer3.SetData(temperatureManager.getThirdData());
         }
 
         if (smokeManager.checkTimeInterval())
         {
-            smokeBuffer1.SetData(smokeManager.getData());
-            smokeBuffer2.SetData(smokeManager.getNextData());
+            ComputeBuffer aux = smokeBuffer1;
+            smokeBuffer1 = smokeBuffer2;
+            smokeBuffer2 = smokeBuffer3;
+            smokeBuffer3 = aux;
+            Task.Run( () => smokeBuffer3.SetData(smokeManager.getThirdData()) );
+            //smokeBuffer3.SetData(smokeManager.getThirdData());
             redoBuffers = true;
         }
 
         if (velocityManager.checkTimeInterval())
         {
-            velocityBuffer1.SetData(velocityManager.getData());
-            velocityBuffer2.SetData(velocityManager.getNextData());
+            ComputeBuffer aux = velocityBuffer1;
+            velocityBuffer1 = velocityBuffer2;
+            velocityBuffer2 = velocityBuffer3;
+            velocityBuffer3 = aux;
+            velocityBuffer3.SetData(velocityManager.getThirdData());
             //redoBuffers = true;
         }
 
@@ -129,9 +148,9 @@ public class GPUsimulationManager : MonoBehaviour
         float[] densities = smokeManager.getData();
         smokepositions[0] = new Vector3(0.0f,0.0f,0.0f);
         index = 1;
-        for (int z = dimz-1; z > -1; z -= 3) for (int y = 0; y < dimy && index < nparticles; y += 3) for (int x = 0; x < dimx; x += 3)
+        for (int z = dimz-1; z > -1; z -= 1) for (int y = 0; y < dimy && index < nparticles; y += 1) for (int x = 0; x < dimx; x += 1)
                 {
-                    if (index < nparticles && densities[z * dimy * dimx + y * dimx + x] > 9)
+                    if (index < nparticles && densities[z * dimy * dimx + y * dimx + x] > 0)
                     {
                         smokepositions[index] = new Vector3((float)x, (float)y, (float)z) / 100.0f;
                         ++index;
@@ -194,11 +213,15 @@ public class GPUsimulationManager : MonoBehaviour
     void OnDestroy(){
         temperatureBuffer1.Release();
         temperatureBuffer2.Release();
+        temperatureBuffer3.Release();
+
         smokeBuffer1.Release();
         smokeBuffer2.Release();
+        smokeBuffer3.Release();
 
         velocityBuffer1.Release();
         velocityBuffer2.Release();
+        velocityBuffer3.Release();
 
         positionBuffer.Release();
         smokepositionBuffer.Release();

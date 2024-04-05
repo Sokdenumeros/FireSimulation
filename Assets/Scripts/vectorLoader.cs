@@ -14,6 +14,7 @@ public class vectorLoader : MonoBehaviour
     LinkedList<Vector3[]> dataList;
     public string pre;
     public string post;
+    private bool reading;
 
     //IF TIME I AM ASKING FOR IS NOT IN TIMELIT RETURN ERROR
     //PROBABLY SHOULD MAKE IT SO THAT I CAN ASK FOR A CERTAIN TIME
@@ -25,6 +26,11 @@ public class vectorLoader : MonoBehaviour
     public Vector3[] getNextData(){
         checkTimeInterval();
         return dataList.First.Next.Value;
+    }
+
+    public Vector3[] getThirdData(){
+        checkTimeInterval();
+        return dataList.First.Next.Next.Value;
     }
 
     public bool checkTimeInterval(){
@@ -43,17 +49,11 @@ public class vectorLoader : MonoBehaviour
         dimy = int.Parse(values[values.Length - 3]);
         dimz = int.Parse(values[values.Length - 4]);
 
-        dataList.AddLast(new Vector3[dimx * dimy * dimz]);
-        readBinarytoList(0.0f);
-        timeList.AddLast(0.0f);
-
-        dataList.AddLast(new Vector3[dimx * dimy * dimz]);
-        readBinarytoList(timestep);
-        timeList.AddLast(timestep);
-
-        dataList.AddLast(new Vector3[dimx * dimy * dimz]);
-        readBinarytoList(timestep*2);
-        timeList.AddLast(timestep*2);
+        for (int i = 0; i < 4; ++i){
+            dataList.AddLast(new Vector3[dimx * dimy * dimz]);
+            readBinarytoList(timestep*i);
+            timeList.AddLast(timestep*i);
+        }
     }
 
     //IF NO OTHER TIME READY, RETUNR AN ERROR
@@ -63,6 +63,8 @@ public class vectorLoader : MonoBehaviour
 
         dataList.AddLast(dataList.First.Value);
         dataList.RemoveFirst();
+        if(reading) Debug.LogError("STILL READING");
+        reading = true;
         Task.Run( () => readBinarytoList(time) );
         return dataList.First.Value;
     }
@@ -73,6 +75,7 @@ public class vectorLoader : MonoBehaviour
         if (! File.Exists(filePath))
         {
             Debug.Log("File not found: " + filePath);
+            reading = false;
             return;
         }
 
@@ -87,5 +90,6 @@ public class vectorLoader : MonoBehaviour
                 data[i] = new Vector3(u,v,w);
             }
         }
+        reading = false;
     }
 }

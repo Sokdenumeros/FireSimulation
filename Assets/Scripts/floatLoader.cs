@@ -14,6 +14,7 @@ public class floatLoader : MonoBehaviour
     LinkedList<float[]> dataList;
     public string pre;
     public string post;
+    private bool reading;
 
     //IF TIME I AM ASKING FOR IS NOT IN TIMELIT RETURN ERROR
     //PROBABLY SHOULD MAKE IT SO THAT I CAN ASK FOR A CERTAIN TIME
@@ -25,6 +26,11 @@ public class floatLoader : MonoBehaviour
     public float[] getNextData(){
         checkTimeInterval();
         return dataList.First.Next.Value;
+    }
+
+    public float[] getThirdData(){
+        checkTimeInterval();
+        return dataList.First.Next.Next.Value;
     }
 
     public bool checkTimeInterval(){
@@ -43,18 +49,11 @@ public class floatLoader : MonoBehaviour
         dimy = int.Parse(values[values.Length - 3]);
         dimz = int.Parse(values[values.Length - 4]);
 
-        //for(int i = 0; i < 3; ++i){}
-        dataList.AddLast(new float[dimx * dimy * dimz]);
-        readBinarytoList(0.0f);
-        timeList.AddLast(0.0f);
-
-        dataList.AddLast(new float[dimx * dimy * dimz]);
-        readBinarytoList(timestep);
-        timeList.AddLast(timestep);
-
-        dataList.AddLast(new float[dimx * dimy * dimz]);
-        readBinarytoList(timestep*2);
-        timeList.AddLast(timestep*2);
+        for (int i = 0; i < 4; ++i){
+            dataList.AddLast(new float[dimx * dimy * dimz]);
+            readBinarytoList(timestep*i);
+            timeList.AddLast(timestep*i);
+        }
     }
 
     //IF NO OTHER TIME READY, RETURN AN ERROR
@@ -64,6 +63,8 @@ public class floatLoader : MonoBehaviour
 
         dataList.AddLast(dataList.First.Value);
         dataList.RemoveFirst();
+        if(reading) Debug.LogError("STILL READING");
+        reading = true;
         Task.Run( () => readBinarytoList(time) );
         return dataList.First.Value;
     }
@@ -74,6 +75,7 @@ public class floatLoader : MonoBehaviour
         if (! File.Exists(filePath))
         {
             Debug.Log("File not found: " + filePath);
+            reading = false;
             return;
         }
 
@@ -81,7 +83,9 @@ public class floatLoader : MonoBehaviour
         {
             float[] data = dataList.Last.Value;
             for (int i = 0; i < data.Length; ++i) data[i] = reader.ReadSingle();
+            //memoryData[i] = Convert.ToSingle(binReader.Read());
         }
+        reading = false;
     }
 
     

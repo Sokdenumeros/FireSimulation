@@ -7,11 +7,9 @@ TRANSPARENT SHADER
 THINGS TO DO-------------------------------------------------------------
 Need to paint the particles in order because fire looks diferent depending on the order(sort of)
 Rotate particles so they look at the camera -- NOT WORKING
-Correct memory leaks
 Adjust number of particles to avoid having extra ones at 0,0,0
 Change fov culling so it works even on the scene camera
 Fix frustrum culling
-VR plugin
 Change the dot texture by a more complicated cloud
 From buffer to texture 3D = smoother, hardware accelerated samples
 Change drawing order based on camera position
@@ -47,6 +45,8 @@ https://forum.unity.com/threads/state-of-the-art-parallel-sorting-in-compute-sha
 https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/
 https://github.com/FireDynamics/VRSmokeVis/wiki/Smoke-Rendering
 j.vogelsang@fz-juelich.de
+
+https://forum.unity.com/threads/computebuffer-setdata.862405/
 
 IDEAS THAT I WILL PROBABLY NEVER NEED AGAIN:-------------------------------
 Dynamic batching (use renderer.sharedmaterial)
