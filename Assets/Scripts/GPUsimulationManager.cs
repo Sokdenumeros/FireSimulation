@@ -113,7 +113,8 @@ public class GPUsimulationManager : MonoBehaviour
             temperatureBuffer1 = temperatureBuffer2;
             temperatureBuffer2 = temperatureBuffer3;
             temperatureBuffer3 = aux;
-            temperatureBuffer3.SetData(temperatureManager.getThirdData());
+            //temperatureBuffer3.SetData(temperatureManager.getThirdData());
+            asyncLoad(temperatureBuffer3, temperatureManager.getThirdData()); 
         }
 
         if (smokeManager.checkTimeInterval())
@@ -123,7 +124,9 @@ public class GPUsimulationManager : MonoBehaviour
             smokeBuffer2 = smokeBuffer3;
             smokeBuffer3 = aux;
             //Task.Run( () => smokeBuffer3.SetData(smokeManager.getThirdData()) );
-            smokeBuffer3.SetData(smokeManager.getThirdData());
+            //smokeBuffer3.SetData(smokeManager.getThirdData());
+            asyncLoad(smokeBuffer3, smokeManager.getThirdData()); 
+
             redoBuffers = true;
         }
 
@@ -227,5 +230,11 @@ public class GPUsimulationManager : MonoBehaviour
         smokepositionBuffer.Release();
         colorBuffer.Release();
         commandBuf.Release();
+    }
+
+    void asyncLoad(ComputeBuffer cb, float[] cpuarray) {
+        var buff = cb.BeginWrite<float>(0, dimx * dimy * dimz);
+        for(int i = 0; i < dimx*dimy*dimz; ++i) buff[i] = cpuarray[i];
+        cb.EndWrite<float>(dimx * dimy * dimz);
     }
 }
