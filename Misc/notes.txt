@@ -47,6 +47,7 @@ https://github.com/FireDynamics/VRSmokeVis/wiki/Smoke-Rendering
 j.vogelsang@fz-juelich.de
 
 https://forum.unity.com/threads/computebuffer-setdata.862405/
+https://docs.unity3d.com/ScriptReference/Rendering.GraphicsFence.html
 
 IDEAS THAT I WILL PROBABLY NEVER NEED AGAIN:-------------------------------
 Dynamic batching (use renderer.sharedmaterial)

@@ -52,13 +52,13 @@ public class GPUsimulationManager : MonoBehaviour
         //for (int i = 0; i < 512; ++i) instData[i] = Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize));
         
 
-        temperatureBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
-        temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
-        temperatureBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
+        temperatureBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
+        temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
+        temperatureBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
 
-        smokeBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
-        smokeBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
-        smokeBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float));
+        smokeBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
+        smokeBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
+        smokeBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
 
         velocityBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
         velocityBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
@@ -122,8 +122,8 @@ public class GPUsimulationManager : MonoBehaviour
             smokeBuffer1 = smokeBuffer2;
             smokeBuffer2 = smokeBuffer3;
             smokeBuffer3 = aux;
-            Task.Run( () => smokeBuffer3.SetData(smokeManager.getThirdData()) );
-            //smokeBuffer3.SetData(smokeManager.getThirdData());
+            //Task.Run( () => smokeBuffer3.SetData(smokeManager.getThirdData()) );
+            smokeBuffer3.SetData(smokeManager.getThirdData());
             redoBuffers = true;
         }
 
