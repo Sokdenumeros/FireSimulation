@@ -52,17 +52,17 @@ public class GPUsimulationManager : MonoBehaviour
         //for (int i = 0; i < 512; ++i) instData[i] = Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize));
         
 
-        temperatureBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
-        temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
-        temperatureBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
+        temperatureBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
+        temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
+        temperatureBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
 
-        smokeBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
-        smokeBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
-        smokeBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.SubUpdates);
+        smokeBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
+        smokeBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
+        smokeBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
 
-        velocityBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
-        velocityBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
-        velocityBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3);
+        velocityBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        velocityBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        velocityBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
 
         positionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
         smokepositionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
@@ -113,8 +113,7 @@ public class GPUsimulationManager : MonoBehaviour
             temperatureBuffer1 = temperatureBuffer2;
             temperatureBuffer2 = temperatureBuffer3;
             temperatureBuffer3 = aux;
-            //temperatureBuffer3.SetData(temperatureManager.getThirdData());
-            asyncLoad(temperatureBuffer3, temperatureManager.getThirdData()); 
+            temperatureBuffer3.SetData(temperatureManager.getThirdData());
         }
 
         if (smokeManager.checkTimeInterval())
@@ -123,9 +122,7 @@ public class GPUsimulationManager : MonoBehaviour
             smokeBuffer1 = smokeBuffer2;
             smokeBuffer2 = smokeBuffer3;
             smokeBuffer3 = aux;
-            //Task.Run( () => smokeBuffer3.SetData(smokeManager.getThirdData()) );
-            //smokeBuffer3.SetData(smokeManager.getThirdData());
-            asyncLoad(smokeBuffer3, smokeManager.getThirdData()); 
+            smokeBuffer3.SetData(smokeManager.getThirdData());
 
             redoBuffers = true;
         }
@@ -137,7 +134,6 @@ public class GPUsimulationManager : MonoBehaviour
             velocityBuffer2 = velocityBuffer3;
             velocityBuffer3 = aux;
             velocityBuffer3.SetData(velocityManager.getThirdData());
-            //redoBuffers = true;
         }
 
         if (redoBuffers) initBuffers();
@@ -151,9 +147,9 @@ public class GPUsimulationManager : MonoBehaviour
         float[] densities = smokeManager.getData();
         smokepositions[0] = new Vector3(0.0f,0.0f,0.0f);
         index = 1;
-        for (int z = dimz-1; z > -1; z -= 1) for (int y = 0; y < dimy && index < nparticles; y += 1) for (int x = 0; x < dimx; x += 1)
+        for (int z = dimz-1; z > -1; z -= 3) for (int y = 0; y < dimy && index < nparticles; y += 3) for (int x = 0; x < dimx; x += 3)
                 {
-                    if (index < nparticles && densities[z * dimy * dimx + y * dimx + x] > 0)
+                    if (index < nparticles && densities[z * dimy * dimx + y * dimx + x] > 9)
                     {
                         smokepositions[index] = new Vector3((float)x, (float)y, (float)z) / 100.0f;
                         ++index;
@@ -230,11 +226,5 @@ public class GPUsimulationManager : MonoBehaviour
         smokepositionBuffer.Release();
         colorBuffer.Release();
         commandBuf.Release();
-    }
-
-    void asyncLoad(ComputeBuffer cb, float[] cpuarray) {
-        var buff = cb.BeginWrite<float>(0, dimx * dimy * dimz);
-        for(int i = 0; i < dimx*dimy*dimz; ++i) buff[i] = cpuarray[i];
-        cb.EndWrite<float>(dimx * dimy * dimz);
     }
 }
