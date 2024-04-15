@@ -20,13 +20,19 @@ Optimizations: reduce number of data copies and number of buffer assignments
 Python can't load entrepinos because there's 120Gb of data
 	adjust unity script to work without velocities
 	improve python script
+Direct storage?
 
 RenderParams rp = new RenderParams(material);
 rp.worldBounds = new Bounds(Vector3.zero, 10000*Vector3.one); // use tighter bounds for better FOV culling
 
 THINGS TO REDUCE NUMBER OF FRAGMENTS--------------------------------------
 double opacity and half particles
+particle lookat = camera lookat + backface culling
 
+THINGS TO IMPROVE DATA SENDING:
+https://docs.unity3d.com/ScriptReference/TextureFormat.html
+https://docs.unity3d.com/ScriptReference/Texture3D.html
+https://www.reddit.com/r/Unity3D/comments/5hkudv/comment/db1bx9i/
 
 THINGS TO TWEAK-----------------------------------------------------------
 size of the particles

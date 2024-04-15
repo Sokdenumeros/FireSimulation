@@ -51,7 +51,6 @@ public class GPUsimulationManager : MonoBehaviour
         //instData = new Matrix4x4[512];
         //for (int i = 0; i < 512; ++i) instData[i] = Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize));
         
-
         temperatureBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
         temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
         temperatureBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
@@ -123,7 +122,6 @@ public class GPUsimulationManager : MonoBehaviour
             smokeBuffer2 = smokeBuffer3;
             smokeBuffer3 = aux;
             smokeBuffer3.SetData(smokeManager.getThirdData());
-
             redoBuffers = true;
         }
 

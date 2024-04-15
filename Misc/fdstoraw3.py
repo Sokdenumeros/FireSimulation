@@ -1,27 +1,41 @@
 import numpy as np
 import fdsreader
+import os
 from typing import Dict, Tuple, Literal, Union
 import math
+
 #sim.smoke_3d[0].subsmokes[0].times
 #sim.smoke_3d[0].subsmokes[0].data
 #sim.smoke_3d[0].subsmokes[0].mesh.coordinates
 
-def extract_f32_data(data_element,name,timestep):
+def extract_f32_data(data_element,name):
     try:
-    	data = to_global(data_element,masked = True)
+        os.mkdir(name)
     except:
-        data = data_element.to_global(masked=True)
+        print('Directory exists already')
+
+    try:
+        data, grid = to_global(data_element,return_coordinates=True,masked=True)
+    except:
+        data, grid = data_element.to_global(return_coordinates=True,masked=True)
+
     times = data_element.times
     data = np.transpose(data,(0,2,3,1))
-
-    previous = times[0] - timestep
+    
+    print('Writing to files')
+    
+    grid['x'].astype(np.float32).tofile(name + '/gridX.raw')
+    grid['y'].astype(np.float32).tofile(name + '/gridY.raw')
+    grid['z'].astype(np.float32).tofile(name + '/gridZ.raw')
     for i, time in enumerate(times):
-        if time - previous >= timestep*0.99:
-            flattened_data = data[i].flatten()
-            flattened_data.astype(np.float32).tofile(name + f'_T{time:.1f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw')
-            previous = round(time,2)
+        t = round(time,2)
+        flattened_data = data[i].flatten()
+        flattened_data.astype(np.float32).tofile(name + '/' + f'T{time:.1f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw')
+    print('FINISHED')
 
-def extract_v3_data(de1, de2, de3, name,timestep):
+#DEPRECATED
+def extract_v3_data(de1, de2, de3, name):
+    print('THIS FUNCTION IS DEPRECATED')
     times = de1.times
     data1 = de1.to_global(masked = True)
     data2 = de2.to_global(masked = True)
@@ -76,7 +90,8 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
 
     grid = np.full((smk3d.n_t, steps['x'], steps['y'], steps['z']), np.nan)
 
-    for subsmoke in smk3d._subsmokes.values():
+    print('TOTAL SUBSMOKES: '+str(len(smk3d._subsmokes.values())))
+    for i, subsmoke in enumerate(smk3d._subsmokes.values()):
         #if subsmoke.mesh.coordinates['x'][1] - subsmoke.mesh.coordinates['x'][0] > 1.5*step_sizes_min['x']:
         #    continue
         #if subsmoke.mesh.coordinates['y'][1] - subsmoke.mesh.coordinates['y'][0] > 1.5*step_sizes_min['y']:
@@ -84,7 +99,7 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
         #if subsmoke.mesh.coordinates['z'][1] - subsmoke.mesh.coordinates['z'][0] > 1.5*step_sizes_min['z']:
         #    continue
         subsmoke_data = subsmoke.data.copy()
-        print("SUBSMOKE SHAPE: " + str(subsmoke_data.shape))
+        print('SUBSMOKE ' + str(i))
         if masked:
             mask = subsmoke.mesh.get_obstruction_mask(smk3d.times)
 
@@ -105,10 +120,8 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
 
             # If the slice should be masked, we set all cells at which an obstruction is in the
             # simulation space to the fill value set by the user
-        print("SUBSMOKE AFTER CONCAT: " + str(subsmoke_data.shape))
         if masked:
             subsmoke_data = np.where(mask, subsmoke_data, fill)
-            print("SUBSMOKE AFTER MASK: " + str(subsmoke_data.shape))
 
         grid[:, start_idx['x']: end_idx['x'], start_idx['y']: end_idx['y'],
         start_idx['z']: end_idx['z']] = subsmoke_data[:, : end_idx['x'] - start_idx['x'], :end_idx['y'] - start_idx['y'], :end_idx['z'] - start_idx['z']]
@@ -123,12 +136,16 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
         return grid
 
 # Load FDS simulation
-sim = fdsreader.Simulation('./Entrepinos HF LC 7.6.5/')
+f = input('Enter file\n')
+try:
+    sim = fdsreader.Simulation(f[1:-1])
+except:
+    sim = fdsreader.Simulation(f)
 
 #extract_f32_data(sim.slices[3],'temperature',0.5)
 
 #extract_v3_data(sim.slices[0],sim.slices[1],sim.slices[2],'velocity',0.5)
 
-extract_f32_data(sim.smoke_3d[0],'smokePinos',0.5)
+extract_f32_data(sim.smoke_3d[0],'smokePinos')
 
 #extract_f32_data(sim.smoke_3d[1],'hrpuvPinos',0.5)
