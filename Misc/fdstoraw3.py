@@ -25,8 +25,8 @@ def extract_f32_data(data_element,name):
     print('Writing to files')
     
     grid['x'].astype(np.float32).tofile(name + '/gridX.raw')
-    grid['y'].astype(np.float32).tofile(name + '/gridY.raw')
-    grid['z'].astype(np.float32).tofile(name + '/gridZ.raw')
+    grid['y'].astype(np.float32).tofile(name + '/gridZ.raw')
+    grid['z'].astype(np.float32).tofile(name + '/gridY.raw')
     for i, time in enumerate(times):
         t = round(time,2)
         flattened_data = data[i].flatten()
