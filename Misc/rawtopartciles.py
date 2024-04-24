@@ -5,9 +5,9 @@ import math
 smokedir = input('Enter smoke directory\n')
 heatdir = input('Enter heat directory\n')
 
-xcoords = np.fromfile('gridX.raw', dtype=dtype)
-ycoords = np.fromfile('gridY.raw', dtype=dtype)
-zcoords = np.fromfile('gridZ.raw', dtype=dtype)
+xcoords = np.fromfile(smokedir + '/gridX.raw', dtype=np.float32)
+ycoords = np.fromfile(smokedir + '/gridY.raw', dtype=np.float32)
+zcoords = np.fromfile(smokedir + '/gridZ.raw', dtype=np.float32)
 
 smokefiles = os.listdir(smokedir)[3:]
 heatfiles = os.listdir(heatdir)[3:]
@@ -15,32 +15,48 @@ heatfiles = os.listdir(heatdir)[3:]
 for i, val in enumerate(smokefiles):
 	smokename = smokefiles[i]
 	heatname = heatfiles[i]
+	print(val, end="\r")
 	if smokename.split('_')[0] != heatname.split('_')[0]:
 		print('----------------------------')
 		print(smokename)
 		print(heatname)
 
 	shape = tuple([int(i) for i in smokename.split('.')[-4:-1]])
-	dtype = np.float32
 
-	smoke_data = np.fromfile(name, dtype=dtype).reshape(shape)
+	smoke_data = np.fromfile(smokedir + '/' + smokename, dtype=np.float32).reshape(shape)
 	smoke_data = np.nan_to_num(smoke_data,0)
 
-	heat_data = np.fromfile(name2, dtype=dtype).reshape(shape)
+	heat_data = np.fromfile(heatdir + '/' + heatname, dtype=np.float32).reshape(shape)
 	heat_data = np.nan_to_num(heat_data,0)
 
 	particles = []
 	smoke = []
 	heat = []
+	zvals = []
+	yvals = []
+	xvals = []
 
-	for z_index, z_value in enumerate(zcoords):
-		for y_index, y_value in enumerate(ycoords):
-			for x_index, x_value in enumerate(xcoords):
-				if smoke_data[z_index,y_index,x_index] > 100:
-					particles.append((z_value,y_value,x_value))
-					smoke.append(smoke_data[z_index,y_index,x_index])
-					heat.append(heat_data[z_index,y_index,x_index])
+	#for z_index, z_value in enumerate(zcoords):
+	#	print(z_index, end="\r")
+	#	for y_index, y_value in enumerate(ycoords):
+	#		for x_index, x_value in enumerate(xcoords):
+	#			if smoke_data[z_index,y_index,x_index] > 100:
+	#				particles.append(z_index * len(ycoords) * len(xcoords) + y_index * len(xcoords) + x_index)
+					#zvals.append(z_value)
+					#yvals.append(y_value)
+					#xvals.append(x_value)
+	#				smoke.append(smoke_data[z_index,y_index,x_index])
+	#				heat.append(heat_data[z_index,y_index,x_index])
+	
+	aux = np.argwhere(smoke_data > 100)
+	particles = aux[:, 0] * len(ycoords) * len(xcoords) + aux[:, 1] * len(xcoords) + aux[:, 2]
+	smoke = smoke_data[tuple(aux.T)]
+	heat = heat_data[tuple(aux.T)]
 
-	particles.astype(np.uint32).tofile('particles/'+smokename.split('_')[0]+'.raw')
-	smoke.astype(np.float32).tofile('smoke/'+smokename.split('_')[0]+'.raw')
-	heat.astype(np.float32).tofile('heat/'+smokename.split('_')[0]+'.raw')
+	np.array(particles).astype(np.uint32).tofile('particles/'+smokename.split('_')[0]+'.raw')
+	np.array(smoke).astype(np.float32).tofile('smoke/'+smokename.split('_')[0]+'.raw')
+	np.array(heat).astype(np.float32).tofile('heat/'+smokename.split('_')[0]+'.raw')
+
+	#np.array(xvals).astype(np.float32).tofile('x/'+smokename.split('_')[0]+'.raw')
+	#np.array(yvals).astype(np.float32).tofile('y/'+smokename.split('_')[0]+'.raw')
+	#np.array(zvals).astype(np.float32).tofile('z/'+smokename.split('_')[0]+'.raw')

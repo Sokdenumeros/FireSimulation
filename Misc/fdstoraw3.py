@@ -146,6 +146,6 @@ except:
 
 #extract_v3_data(sim.slices[0],sim.slices[1],sim.slices[2],'velocity',0.5)
 
-extract_f32_data(sim.smoke_3d[0],'smokePinos')
+#extract_f32_data(sim.smoke_3d[0],'smokePinos')
 
-#extract_f32_data(sim.smoke_3d[1],'hrpuvPinos',0.5)
+extract_f32_data(sim.smoke_3d[1],'hrpuvPinos')

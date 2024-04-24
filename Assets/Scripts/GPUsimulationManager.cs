@@ -45,6 +45,14 @@ public class GPUsimulationManager : MonoBehaviour
     private GraphicsBuffer commandBuf;
     private GraphicsBuffer.IndirectDrawIndexedArgs[] commandData;
 
+    //TESTING
+    public byteLoader pman;
+    ComputeBuffer pbuf;
+    public byteLoader sman;
+    ComputeBuffer sbuf;
+    public byteLoader hman;
+    ComputeBuffer hbuf;
+
     void Start()
     {
         
@@ -83,6 +91,21 @@ public class GPUsimulationManager : MonoBehaviour
         velocityBuffer1.SetData(velocityManager.getData());
         velocityBuffer2.SetData(velocityManager.getNextData());
         velocityBuffer3.SetData(velocityManager.getThirdData());
+
+        pman.initialize();
+        pbuf = new ComputeBuffer(250000, sizeof(int), ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        pbuf.SetData(pman.getData());
+        particleUpdater.SetBuffer(0, "pbuffer", pbuf);
+
+        sman.initialize();
+        sbuf = new ComputeBuffer(250000, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        sbuf.SetData(sman.getData());
+        particleUpdater.SetBuffer(0, "sbuffer", sbuf);
+
+        hman.initialize();
+        hbuf = new ComputeBuffer(250000, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        hbuf.SetData(hman.getData());
+        particleUpdater.SetBuffer(0, "hbuffer", hbuf);
 
         initBuffers();
 
@@ -134,6 +157,22 @@ public class GPUsimulationManager : MonoBehaviour
             velocityBuffer3.SetData(velocityManager.getThirdData());
         }
 
+        if(pman.checkTimeInterval()) {
+            pbuf.SetData(pman.getData());
+            particleUpdater.SetBuffer(0, "pbuffer", pbuf);
+            redoBuffers = true;
+        }
+
+        if(sman.checkTimeInterval()) {
+            sbuf.SetData(sman.getData());
+            particleUpdater.SetBuffer(0, "sbuffer", sbuf);
+        }
+
+        if(hman.checkTimeInterval()) {
+            hbuf.SetData(hman.getData());
+            particleUpdater.SetBuffer(0, "hbuffer", hbuf);
+        }
+
         if (redoBuffers) initBuffers();
         updateParticles();
         paintParticlesInstanced();
@@ -141,7 +180,8 @@ public class GPUsimulationManager : MonoBehaviour
 
     private void initBuffers()
     {
-        Vector3[] smokepositions = new Vector3[nparticles];
+        index = pman.getNbytes()/4; return;
+        /*Vector3[] smokepositions = new Vector3[nparticles];
         float[] densities = smokeManager.getData();
         smokepositions[0] = new Vector3(0.0f,0.0f,0.0f);
         index = 1;
@@ -154,7 +194,7 @@ public class GPUsimulationManager : MonoBehaviour
                     }
                 }
         smokepositionBuffer.SetData(smokepositions);
-        Debug.Log(index);
+        Debug.Log(index);*/
     }
 
     private void updateParticles()
@@ -196,7 +236,7 @@ public class GPUsimulationManager : MonoBehaviour
         
         commandData[0].instanceCount = (uint)index;
         commandBuf.SetData(commandData);
-                
+        
         mat.SetVector("camposition", cam.transform.position);
         RenderParams rp = new RenderParams(mat);
         //rp.worldBounds = new Bounds(-10000*Vector3.one, 10000*Vector3.one); // use tighter bounds for better FOV culling

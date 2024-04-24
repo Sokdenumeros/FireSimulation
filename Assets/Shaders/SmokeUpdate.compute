@@ -20,6 +20,9 @@ StructuredBuffer<float3> vel1;
 StructuredBuffer<float3> vel2;
 StructuredBuffer<float> smok1;
 StructuredBuffer<float> smok2;
+StructuredBuffer<uint> pbuffer;
+StructuredBuffer<float> sbuffer;
+StructuredBuffer<float> hbuffer;
 
 RWStructuredBuffer<float3> positions;
 RWStructuredBuffer<float4> colors;
@@ -36,6 +39,22 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
     int globalIndex = (int)(groupID.x * 512 + id.x + id.y * 8 + id.z * 64);
     if (globalIndex < nparticles)
     {
+        uint x = pbuffer[globalIndex] % 641;
+        uint y = (pbuffer[globalIndex]  / 641)%201;
+        uint z = pbuffer[globalIndex] / 641 /201;
+        float3 pos = float3((x*0.1-0.8)*0.1 ,(y*0.1)*0.1, (16+z*0.1)*0.1);
+        positions[globalIndex] = pos;
+        
+		float temp = hbuffer[globalIndex];
+		float opacity = sbuffer[globalIndex];
+        
+		opacity = min(max(opacity / 50.0, 0), 1);
+		float transferFunction = min(max((temp * 7 - 300) / 1300, 0), 1);
+		float4 c = lerp(float4(0, 0, 0, 1), float4(1, 0.46, 0.008, 1), transferFunction);
+		c.w *= opacity / 10;
+		colors[globalIndex] = c;
+        
+        /*
         float3 pos = positions[globalIndex] * 100;
         pos = max(pos, float3(0, 0, 0));
         pos = min(pos, float3(dimensions[0], dimensions[1], dimensions[2]));
@@ -43,12 +62,16 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
 
         float temp =((1 - tempfactor) * temps1[positionIndex] + tempfactor * temps2[positionIndex]);
         float opacity =((1 - smokfactor) * smok1[positionIndex] + smokfactor * smok2[positionIndex]);
-
+        */
+        
+        
         /*if( ((1 - smokfactor) * smok1[positionIndex] + smokfactor * smok2[positionIndex]) < 10 ) {
             positions[globalIndex] = float3(dimensions[0], dimensions[1], dimensions[2]) * float3(random(pos.xy), random(pos.yz), random(pos.xz));
         }
-        else */positions[globalIndex] += ((1 - velfactor) * vel1[positionIndex] + velfactor * vel2[positionIndex]) * deltaTime/2;
-
+        else */ //positions[globalIndex] += ((1 - velfactor) * vel1[positionIndex] + velfactor * vel2[positionIndex]) * deltaTime/2;
+        
+        
+        /*
         opacity = min(max(opacity/50.0,0),1);
         float transferFunction = min(max((temp*7 - 300) / 1300,0),1);
 
@@ -58,5 +81,6 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         c.w *= opacity/10;
 
         colors[globalIndex] = c;
+        */
     }
 }
