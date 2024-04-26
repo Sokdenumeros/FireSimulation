@@ -240,7 +240,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &881736214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -751,45 +751,17 @@ GameObject:
   m_Component:
   - component: {fileID: 2028859187}
   - component: {fileID: 2028859186}
-  - component: {fileID: 2028859185}
-  - component: {fileID: 2028859184}
+  - component: {fileID: 2028859191}
+  - component: {fileID: 2028859190}
+  - component: {fileID: 2028859189}
+  - component: {fileID: 2028859188}
   m_Layer: 0
   m_Name: SimulationManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &2028859184
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2028859183}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 314cae04650a1ce4486a8a025a1f1c09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timestep: 0.5
-  pre: ../Simulations/velocity_T
-  post: _.61.121.61.raw
---- !u!114 &2028859185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2028859183}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4f0c79eeb130d94aabdfd881873487f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timestep: 0.5
-  pre: ../Simulations/temperature_T
-  post: _.61.121.61.raw
+  m_IsActive: 1
 --- !u!114 &2028859186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -802,14 +774,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a13451fda2cf5c74dbfd0a1dd5348e9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireParticle: {fileID: 8453165007520538223, guid: 0a372b22b10f77445b48fc64dba7ea33, type: 3}
-  dimx: 61
-  dimy: 121
-  dimz: 61
-  temperatureManager: {fileID: 2028859185}
-  velocityManager: {fileID: 2028859184}
-  fsmat: {fileID: 2100000, guid: ae6fdbe4c895f0744a9517428229b602, type: 2}
+  particleUpdater: {fileID: 7200000, guid: fe72e02761444ca4f8bdd44629c4fcf9, type: 3}
+  smokemat: {fileID: 2100000, guid: 4d1dedb494433954b8015d37b27a0891, type: 2}
   quadmesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  pman: {fileID: 2028859191}
+  sman: {fileID: 2028859190}
+  hman: {fileID: 2028859189}
+  gridxFile: ../Simulations/smokePinos/gridX.raw
+  gridyFile: ../Simulations/smokePinos/gridY.raw
+  gridzFile: ../Simulations/smokePinos/gridZ.raw
+  nparticles: 700000
+  particleSize: 0.1
+  cam: {fileID: 963194225}
 --- !u!4 &2028859187
 Transform:
   m_ObjectHideFlags: 0
@@ -825,6 +801,64 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2028859188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028859183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a02a33b8358e244e8c604fbba2a0822, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  camObject: {fileID: 963194225}
+--- !u!114 &2028859189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028859183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a113e01360a48ab4984b75b682ef7a0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timestep: 0.2
+  pre: ../Simulations/heat/T
+  post: .raw
+--- !u!114 &2028859190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028859183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a113e01360a48ab4984b75b682ef7a0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timestep: 0.2
+  pre: ../Simulations/smoke/T
+  post: .raw
+--- !u!114 &2028859191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028859183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a113e01360a48ab4984b75b682ef7a0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timestep: 0.2
+  pre: ../Simulations/particles/T
+  post: .raw
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

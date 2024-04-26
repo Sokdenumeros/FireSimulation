@@ -29,7 +29,6 @@ public class GPUsimulationManager : MonoBehaviour
     ComputeBuffer velocityBuffer2;
     ComputeBuffer velocityBuffer3;
 
-    ComputeBuffer positionBuffer;
     ComputeBuffer smokepositionBuffer;
     ComputeBuffer colorBuffer;
 
@@ -58,7 +57,7 @@ public class GPUsimulationManager : MonoBehaviour
         
         //instData = new Matrix4x4[512];
         //for (int i = 0; i < 512; ++i) instData[i] = Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize));
-        
+        /*
         temperatureBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
         temperatureBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
         temperatureBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float),ComputeBufferType.Default ,ComputeBufferMode.Dynamic);
@@ -70,13 +69,12 @@ public class GPUsimulationManager : MonoBehaviour
         velocityBuffer1 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
         velocityBuffer2 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
         velocityBuffer3 = new ComputeBuffer(dimx * dimy * dimz, sizeof(float) * 3, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
-
-        positionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
-        smokepositionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
-        colorBuffer = new ComputeBuffer(nparticles, sizeof(float) * 4);
+        */
+        smokepositionBuffer = new ComputeBuffer(700000, sizeof(float) * 3);
+        colorBuffer = new ComputeBuffer(700000, sizeof(float) * 4);
 
         particleUpdater.SetInts("dimensions", new int[3] { dimx, dimy, dimz });
-
+        /*
         temperatureManager.initialize();
         temperatureBuffer1.SetData(temperatureManager.getData());
         temperatureBuffer2.SetData(temperatureManager.getNextData());
@@ -91,19 +89,19 @@ public class GPUsimulationManager : MonoBehaviour
         velocityBuffer1.SetData(velocityManager.getData());
         velocityBuffer2.SetData(velocityManager.getNextData());
         velocityBuffer3.SetData(velocityManager.getThirdData());
-
-        pman.initialize();
-        pbuf = new ComputeBuffer(250000, sizeof(int), ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        */
+        pman.initialize(700000*4);
+        pbuf = new ComputeBuffer(700000, sizeof(int), ComputeBufferType.Default, ComputeBufferMode.Dynamic);
         pbuf.SetData(pman.getData());
         particleUpdater.SetBuffer(0, "pbuffer", pbuf);
 
-        sman.initialize();
-        sbuf = new ComputeBuffer(250000, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        sman.initialize(700000*4);
+        sbuf = new ComputeBuffer(700000, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
         sbuf.SetData(sman.getData());
         particleUpdater.SetBuffer(0, "sbuffer", sbuf);
 
-        hman.initialize();
-        hbuf = new ComputeBuffer(250000, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        hman.initialize(700000*4);
+        hbuf = new ComputeBuffer(700000, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
         hbuf.SetData(hman.getData());
         particleUpdater.SetBuffer(0, "hbuffer", hbuf);
 
@@ -128,7 +126,7 @@ public class GPUsimulationManager : MonoBehaviour
     void Update()
     {
         bool redoBuffers = false;
-
+        /*
         if (temperatureManager.checkTimeInterval())
         {
             ComputeBuffer aux = temperatureBuffer1;
@@ -156,7 +154,7 @@ public class GPUsimulationManager : MonoBehaviour
             velocityBuffer3 = aux;
             velocityBuffer3.SetData(velocityManager.getThirdData());
         }
-
+        */
         if(pman.checkTimeInterval()) {
             pbuf.SetData(pman.getData());
             particleUpdater.SetBuffer(0, "pbuffer", pbuf);
@@ -169,8 +167,11 @@ public class GPUsimulationManager : MonoBehaviour
         }
 
         if(hman.checkTimeInterval()) {
+            double d = Time.realtimeSinceStartupAsDouble;
             hbuf.SetData(hman.getData());
+            d = Time.realtimeSinceStartupAsDouble - d;
             particleUpdater.SetBuffer(0, "hbuffer", hbuf);
+            Debug.Log(d);
         }
 
         if (redoBuffers) initBuffers();
@@ -199,16 +200,17 @@ public class GPUsimulationManager : MonoBehaviour
 
     private void updateParticles()
     {
+    /*
         particleUpdater.SetBuffer(0, "temps1", temperatureBuffer1);
         particleUpdater.SetBuffer(0, "temps2", temperatureBuffer2);
         particleUpdater.SetBuffer(0, "vel1", velocityBuffer1);
         particleUpdater.SetBuffer(0, "vel2", velocityBuffer2);
         particleUpdater.SetBuffer(0, "smok1", smokeBuffer1);
         particleUpdater.SetBuffer(0, "smok2", smokeBuffer2);
-
-        particleUpdater.SetFloat("tempfactor", temperatureManager.getInterpolationFactor());
-        particleUpdater.SetFloat("velfactor", velocityManager.getInterpolationFactor());
-        particleUpdater.SetFloat("smokfactor", smokeManager.getInterpolationFactor());
+        */
+        //particleUpdater.SetFloat("tempfactor", temperatureManager.getInterpolationFactor());
+        //particleUpdater.SetFloat("velfactor", velocityManager.getInterpolationFactor());
+        //particleUpdater.SetFloat("smokfactor", smokeManager.getInterpolationFactor());
         particleUpdater.SetFloat("deltaTime", Time.deltaTime);
         particleUpdater.SetInt("nparticles", index);
 
@@ -260,7 +262,6 @@ public class GPUsimulationManager : MonoBehaviour
         velocityBuffer2.Release();
         velocityBuffer3.Release();
 
-        positionBuffer.Release();
         smokepositionBuffer.Release();
         colorBuffer.Release();
         commandBuf.Release();

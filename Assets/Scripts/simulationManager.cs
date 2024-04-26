@@ -1,273 +1,170 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class simulationManager : MonoBehaviour
 {
-    public GameObject fireParticle;
-    public int dimx, dimy, dimz;
-    LinkedList<float> timeList;    
-
-    public floatLoader temperatureManager;
-
-    public vectorLoader velocityManager;
-    private Vector3[] velocity;
-    private Vector3[] nextVelocity;
-
-    //Those variables are just to test the RenderMeshInstanced
-    public Material fsmat;
+    //DRAW ASSETS
+    public ComputeShader particleUpdater;
+    public Material smokemat;
     public Mesh quadmesh;
 
-    //Variables to test the dataElement struct
-    dataElement temperatures;
-    int r(float f) {return Mathf.RoundToInt(f);}
-    struct dataElement{
-        public float[] previous;
-        public float[] next;
-        public float previousTime;
-        public float nextTime;
-        public int dimx, dimy, dimz;
-        private int r(float f) {return Mathf.RoundToInt(f);}
-        public dataElement(float[] a, float[] b, int x, int y,int  z) {
-            previousTime = 0.0f;
-            nextTime = 0.0f;
-            previous = a;
-            next = b;
-            dimx = x;
-            dimy = y;
-            dimz = z;
-        }
+    public byteLoader pman;
+    ComputeBuffer pbuf;
+    public byteLoader sman;
+    ComputeBuffer sbuf;
+    public byteLoader hman;
+    ComputeBuffer hbuf;
 
-        public float sample(float t, float x, float y, float z){
-            float timeFactor = (t-previousTime)/(nextTime-previousTime);
-            float timesample0 = previous[ r(z)*dimy*dimx + r(y)*dimx + r(x) ];
-            float timesample1 = next[r(z) * dimy * dimx + r(y) * dimx + r(x)];
-            return (1-timeFactor)*timesample0 + timeFactor*timesample1;
-        }
+    ComputeBuffer smokepositionBuffer;
+    ComputeBuffer colorBuffer;
 
-        public float sample(float t, Vector3 v){
-            float x = v.x;
-            float y = v.y;
-            float z = v.z;
-            float timeFactor = (t-previousTime)/(nextTime-previousTime);
-            float timesample0 = previous[ r(z)*dimy*dimx + r(y)*dimx + r(x) ];
-            float timesample1 = next[r(z) * dimy * dimx + r(y) * dimx + r(x)];
-            return (1-timeFactor)*timesample0 + timeFactor*timesample1;
-        }
-    }
-    
-    // Start is called before the first frame update
+    public string gridxFile;
+    public string gridyFile;
+    public string gridzFile;
+
+    ComputeBuffer gridx;
+    ComputeBuffer gridy;
+    ComputeBuffer gridz;
+
+    //PARAMETERS
+    public int nparticles;
+    public float particleSize;
+    public GameObject cam;
+
+    //OTHER
+    private int index;
+    private Material mat;
+    private GraphicsBuffer commandBuf;
+    private GraphicsBuffer.IndirectDrawIndexedArgs[] commandData;    
+
     void Start()
     {
-        temperatureManager.initialize();
+        smokepositionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
+        colorBuffer = new ComputeBuffer(nparticles, sizeof(float) * 4);
 
-        velocityManager.initialize();
-        velocity = velocityManager.getData();
-        nextVelocity = velocityManager.getNextData();
+        pman.initialize(nparticles*4);
+        pbuf = new ComputeBuffer(nparticles, sizeof(int), ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        pbuf.SetData(pman.getData());
+        particleUpdater.SetBuffer(0, "pbuffer", pbuf);
 
-        timeList = new LinkedList<float>();
-        timeList.AddLast(0.0f);
-        timeList.AddLast(0.5f);
-        timeList.AddLast(1.0f);
+        sman.initialize(nparticles*4);
+        sbuf = new ComputeBuffer(nparticles, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        sbuf.SetData(sman.getData());
+        particleUpdater.SetBuffer(0, "sbuffer", sbuf);
 
-        temperatures = new dataElement(temperatureManager.getData(),temperatureManager.getNextData(),dimx,dimy,dimz);
-        temperatures.previousTime = timeList.First.Value;
-        temperatures.nextTime = timeList.First.Next.Value;
+        hman.initialize(nparticles*4);
+        hbuf = new ComputeBuffer(nparticles, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        hbuf.SetData(hman.getData());
+        particleUpdater.SetBuffer(0, "hbuffer", hbuf);
 
-        instantiateParticles();
+        index = pman.getNbytes()/4;
+
+        particleUpdater.SetBuffer(0, "positions", smokepositionBuffer);
+        particleUpdater.SetBuffer(0, "colors", colorBuffer);
+
+        mat = new Material(smokemat);
+        mat.SetBuffer("positionbuffer", smokepositionBuffer);
+        mat.SetBuffer("colorbuffer", colorBuffer);
+        mat.SetFloat("particleSize", particleSize);
+
+        commandBuf = new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments, 1, GraphicsBuffer.IndirectDrawIndexedArgs.size);
+        commandData = new GraphicsBuffer.IndirectDrawIndexedArgs[1];
+        commandData[0].indexCountPerInstance = quadmesh.GetIndexCount(0);
+
+        setupGrid();
+    }
+
+    void setupGrid(){
+        byte[] gridData = new byte[10000];
+        int nbytesx, nbytesy, nbytesz;
+
+        using (BinaryReader reader = new BinaryReader(File.Open(gridxFile, FileMode.Open))) {
+            nbytesx = reader.Read(gridData, 0, gridData.Length);
+            gridx = new ComputeBuffer(nbytesx/4, sizeof(float));
+            gridx.SetData(gridData,0,0,nbytesx);
+            particleUpdater.SetBuffer(0, "gridx", gridx);
+        }
+
+        using (BinaryReader reader = new BinaryReader(File.Open(gridyFile, FileMode.Open))) {
+            nbytesy = reader.Read(gridData, 0, gridData.Length);
+            gridy = new ComputeBuffer(nbytesy/4, sizeof(float));
+            gridy.SetData(gridData,0,0,nbytesy);
+            particleUpdater.SetBuffer(0, "gridy", gridy);
+        }
+
+        using (BinaryReader reader = new BinaryReader(File.Open(gridzFile, FileMode.Open))) {
+            nbytesz = reader.Read(gridData, 0, gridData.Length);
+            gridz = new ComputeBuffer(nbytesz/4, sizeof(float));
+            gridz.SetData(gridData,0,0,nbytesz);
+            particleUpdater.SetBuffer(0, "gridz", gridz);
+        }
+
+        particleUpdater.SetInts("dimensions", new int[3] { nbytesx/4, nbytesy/4, nbytesz/4});
     }
 
     // Update is called once per frame
     void Update()
-    {
-        /*if(Time.time > timeList.First.Value) {
-
-            float time = timeList.First.Value + 1.5f;
-            timeList.RemoveFirst();
-            timeList.AddLast(time);
-
-            temperatures.previousTime = timeList.First.Value;
-            temperatures.nextTime = timeList.First.Next.Value;
-
-            temperatures.previous = temperatureManager.newTimeData(time);
-            temperatures.next = temperatureManager.getNextData();
-
-            velocity = velocityManager.newTimeData(time);
-            nextVelocity = velocityManager.getNextData();
-
-            Object[] allObjects = Object.FindObjectsOfType(typeof(GameObject));
-            foreach(GameObject obj in allObjects) if(obj.transform.name.StartsWith("FireParticle")) Destroy(obj);
-
-            //instObjects();
-            instantiateParticles();
-            //instantiateParticleObjects();
-        }*/
-
-        bool reinstantiate = false;
-
-        if(temperatureManager.checkTimeInterval()){
-            float time = timeList.First.Value + 1.5f;
-            timeList.RemoveFirst();
-            timeList.AddLast(time);
-
-            temperatures.previousTime = timeList.First.Value;
-            temperatures.nextTime = timeList.First.Next.Value;
-
-            temperatures.previous = temperatureManager.getData();
-            temperatures.next = temperatureManager.getNextData();
-            reinstantiate = true;
+    { 
+        if(pman.checkTimeInterval()) {
+            pbuf.SetData(pman.getData());
+            particleUpdater.SetBuffer(0, "pbuffer", pbuf);
         }
 
-        if(velocityManager.checkTimeInterval()){
-            velocity = velocityManager.getData();
-            nextVelocity = velocityManager.getNextData();
-            reinstantiate = true;
+        if(sman.checkTimeInterval()) {
+            sbuf.SetData(sman.getData());
+            particleUpdater.SetBuffer(0, "sbuffer", sbuf);
         }
 
-        if(reinstantiate) {
-            Object[] allObjects = Object.FindObjectsOfType(typeof(GameObject));
-            foreach(GameObject obj in allObjects) if(obj.transform.name.StartsWith("FireParticle")) Destroy(obj);
-            //instObjects();
-            instantiateParticles();
-            //instantiateParticleObjects();
+        if(hman.checkTimeInterval()) {
+            hbuf.SetData(hman.getData());
+            particleUpdater.SetBuffer(0, "hbuffer", hbuf);
         }
 
+        index = pman.getNbytes()/4;
         updateParticles();
-        paintParticles();
-        //paintParticlesInstanced();
+        paintParticlesInstanced();
     }
 
-    private void instObjects()
+
+    private void updateParticles()
     {
-        GameObject o;
-        MeshRenderer me;
-        Material mat;
-        float exp;
-        float[] data = temperatures.previous;
-        for (int z = 0; z < dimz; z += 1)
-            for (int y = 0; y < dimy; y += 1)
-                for (int x = 0; x < dimx; x += 1)
-                {
-                    exp = (data[z * dimy * dimx + y * dimx + x] - 300) / 1300;
-                    if (exp > 0)
-                    {
-                        o = Instantiate(fireParticle, new Vector3(x, z, y) / 100, Quaternion.identity);
-                        me = o.GetComponent<MeshRenderer>();
-                        mat = me.material;
-                        
-                        //should never be above 1, for some reason the ronan example has values e+16
-                        //mat.color = new Color(0, 0, 0, exp);
+        //particleUpdater.SetFloat("tempfactor", temperatureManager.getInterpolationFactor());
+        //particleUpdater.SetFloat("velfactor", velocityManager.getInterpolationFactor());
+        //particleUpdater.SetFloat("smokfactor", smokeManager.getInterpolationFactor());
+        //particleUpdater.SetFloat("deltaTime", Time.deltaTime);
+        particleUpdater.SetInt("nparticles", index);
 
-                        //mat.color = Color.red;//Color.Lerp(Color.red,Color.yellow,(data[z*dimy*dimx+y*dimx+x]-270)/1000);
-                        mat.color = Color.Lerp(Color.red,Color.yellow,exp);
-                        //mat.color.a = exp;
-                        mat.color = Color.Lerp(Color.clear,mat.color,exp*2);
-                    }
-                }
+        uint x, y, z;
+        particleUpdater.GetKernelThreadGroupSizes(0, out x, out y, out z);
+        int threadsx = (int)(index / (x*y*z));
+        if (index % (x * y * z) > 0) threadsx++;
+        if (threadsx > 0) particleUpdater.Dispatch(0, threadsx, 1, 1);
+
     }
-    
-    struct partInfo{
-        public Vector3 position;
-        public float temperature;
 
-        public partInfo(Vector3 p, float t) {
-        this.position = p;
-        this.temperature = t;
-        }
-    }
-    private List<partInfo> particles;
-
-    private void instantiateParticles() {
-
-        particles = new List<partInfo>(dimx*dimy*dimz);
-        float exp;
-        float[] temps = temperatures.previous;
-        //for (int z = 0; z < dimz; z += 1) for (int y = 0; y < dimy; y += 1) for (int x = 0; x < dimx; x += 1){
-        for (int z = dimz-1; z >= 0; z -= 1) for (int y = dimy-1; y >= 0; y -= 1) for (int x = dimx-1; x >= 0; x -= 1){
-                    exp = (temps[z * dimy * dimx + y * dimx + x] - 300) / 1300;
-                    if (exp > 0) particles.Add(new partInfo(new Vector3(x, y, z) / 100, temps[z * dimy * dimx + y * dimx + x]));
-                }
+    private void paintParticlesInstanced()
+    {
+        commandData[0].instanceCount = (uint)index;
+        commandBuf.SetData(commandData);
+        
+        mat.SetVector("camposition", cam.transform.position);
+        RenderParams rp = new RenderParams(mat);
+        //rp.worldBounds = new Bounds(-10000*Vector3.one, 10000*Vector3.one); // use tighter bounds for better FOV culling
+        //rp.matProps = new MaterialPropertyBlock();
+        //rp.matProps.SetMatrix("_ObjectToWorld", Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize)));
+        Graphics.RenderMeshIndirect(rp, quadmesh, commandBuf, 1);
+        
         
     }
-    
-    //MAYBE I SHOULD TRANSPOSE THE DATA ARRAY IN PYTHON IN A DIFFERENT WAY AT SOME POINT
-    private void updateParticles() {
-        partInfo p;
-        Vector3 pos;
-        Vector3 big = new Vector3(dimx-1,dimy-1,dimz-1);
-        float factor = temperatureManager.getInterpolationFactor();
-        for(int i = 0; i < particles.Count; ++i) {
-            p = particles[i];
-            pos = p.position*100.0f;
-            pos = Vector3.Max(pos, Vector3.zero);
-            pos = Vector3.Min(pos, big);
-            p.temperature = temperatures.sample(Time.time,pos);
-            //INTERCHANGING Y AND Z BECAUSE INDICES WERE FLIPPED
-            p.position += ( (1-factor)*velocity[r(pos.z) * dimy * dimx + r(pos.y) * dimx + r(pos.x)] + factor*nextVelocity[r(pos.z)*dimy*dimx + r(pos.y)*dimx + r(pos.x)] )*Time.deltaTime/2.0f;
-            particles[i] = p;
-        }
-    }
 
-    private void paintParticles() {
-        GameObject o = Instantiate(fireParticle, new Vector3(0,0,0), Quaternion.identity);
-        RenderParams rp = new RenderParams(o.GetComponent<MeshRenderer>().material);
-        rp = new RenderParams(fsmat);
-        //rp.material.color =  Color.red;
-        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(0.1f,0.1f,0.1f));
-        float exp;
-        Color c;
-        for(int i = 0; i < particles.Count; ++i){
-            exp = (particles[i].temperature - 300) / 1300;
-            c = Color.Lerp(Color.red,Color.yellow,exp);
-            //rp.material.color = Color.Lerp(Color.clear,c,exp*2);
-            //rp.material.color = c;
-            //rp = new RenderParams(m);
-            Graphics.RenderMesh(rp, quadmesh, 0, Matrix4x4.Translate(particles[i].position)*scaleMatrix);
-        }
-        Destroy(o);
-    }
-
-    private void instantiateParticleObjects() {
-        GameObject o;
-        MeshRenderer me;
-        float exp;
-        Color c;
-        for(int i = 0; i < particles.Count; ++i){
-            exp = (particles[i].temperature - 300) / 1300;
-            o = Instantiate(fireParticle, particles[i].position, Quaternion.identity);
-            me = o.GetComponent<MeshRenderer>();
-            c = Color.Lerp(Color.red,Color.yellow,exp);
-            me.material.color = Color.Lerp(Color.clear,c,exp*2);
-            fsmat.color = Color.Lerp(Color.clear,c,exp*2);
-            //me.material = fsmat;
-        }
-    }
-
-    private void paintParticlesInstanced() {
-        RenderParams rp = new RenderParams(fsmat);
-        Matrix4x4[] instData = new Matrix4x4[particles.Count];
-        Matrix4x4 scaleMatrix = Matrix4x4.Scale(new Vector3(0.1f,0.1f,0.1f));
-        for(int i = 0; i < particles.Count; ++i){
-            instData[i] = Matrix4x4.Translate(particles[i].position)*scaleMatrix;
-        }
-
-        //EXPERIMENTAL
-        if (particles.Count > 0)
-        {
-            ComputeBuffer testBuffer = new ComputeBuffer(particles.Count, sizeof(float) * 4);
-            Color[] testdata = new Color[particles.Count];
-            float exp;
-            for (int i = 0; i < particles.Count; ++i)
-            {
-                exp = (particles[i].temperature - 300) / 1300;
-                testdata[i] = Color.Lerp(Color.red, Color.yellow, exp);
-                testdata[i] = Color.Lerp(Color.clear, testdata[i], exp * 2);
-            }
-            testBuffer.SetData(testdata);
-            fsmat.SetBuffer("colorbuffer", testBuffer);
-        }
-
-        //Graphics.DrawMeshInstancedIndirect(quadmesh, 0, fsmat, new Bounds(Vector3.zero, new Vector3(200.0f, 200.0f, 200.0f)), argsBuffer);
-        if (particles.Count > 0) Graphics.RenderMeshInstanced(rp, quadmesh, 0, instData);
+    void OnDestroy(){
+        smokepositionBuffer.Release();
+        colorBuffer.Release();
+        commandBuf.Release();
+        pbuf.Release();
+        sbuf.Release();
+        hbuf.Release();
     }
 }

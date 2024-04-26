@@ -59,6 +59,7 @@ Shader "Unlit/SmokeShader"
                 float4 vert = v.vertex;
                 vert = mul(unity_ObjectToWorld, vert);
                 
+                /*
                 #ifdef INSTANCING_ON
                     int id = v.instanceID + offset;
                     float3 forward = normalize(camposition - positionbuffer[id]);
@@ -68,7 +69,7 @@ Shader "Unlit/SmokeShader"
                     vert = mul(unity_ObjectToWorld, float4(mul(rotationMatrix,v.vertex.xyz),v.vertex.w)) + float4(positionbuffer[id], 0);
                     //vert += float4(positionbuffer[id], 0);
                 #endif
-                
+                */
 
                 
                 int id = GetIndirectInstanceID(svInstanceID);
@@ -94,12 +95,13 @@ Shader "Unlit/SmokeShader"
                 //col.w = col.x; col.x = 1; col.y = 1; col.z = 1;
 
 
-                
+                /*
                 #ifdef INSTANCING_ON
                     int id = i.instanceID + offset;
                     col = col * colorbuffer[id];
                 #endif
-                
+                */
+
                 return col*i.pcolor;
             }
             ENDCG

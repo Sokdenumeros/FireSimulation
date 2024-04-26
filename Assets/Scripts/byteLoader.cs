@@ -30,15 +30,15 @@ public class byteLoader : MonoBehaviour
         return false;
     }
     public float getInterpolationFactor() { return (Time.time - timeList.First.Value) / timestep; }
-    public void initialize()
+    public void initialize(int nbytes)
     {
         bytes = new LinkedList<int>();
         dataList = new LinkedList<byte[]>();
         timeList = new LinkedList<float>();
         
         for (int i = 0; i < 4; ++i){
-            dataList.AddLast(new byte[1000000]);
-            bytes.AddLast(1000000);
+            dataList.AddLast(new byte[nbytes]);
+            bytes.AddLast(nbytes);
             readBinarytoList(timestep*i);
             timeList.AddLast(timestep*i);
         }

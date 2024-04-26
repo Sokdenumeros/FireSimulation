@@ -21,7 +21,7 @@ Python can't load entrepinos because there's 120Gb of data
 	adjust unity script to work without velocities
 	improve python script
 Direct storage?
-numpy agrwhere
+numpy agrwhere / argpartition
 
 RenderParams rp = new RenderParams(material);
 rp.worldBounds = new Bounds(Vector3.zero, 10000*Vector3.one); // use tighter bounds for better FOV culling
