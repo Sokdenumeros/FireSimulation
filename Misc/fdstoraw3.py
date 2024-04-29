@@ -30,7 +30,7 @@ def extract_f32_data(data_element,name):
     for i, time in enumerate(times):
         t = round(time,2)
         flattened_data = data[i].flatten()
-        flattened_data.astype(np.float32).tofile(name + '/' + f'T{time:.1f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw')
+        flattened_data.astype(np.float16).tofile(name + '/' + f'T{time:.1f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw')
     print('FINISHED')
 
 #DEPRECATED
@@ -88,7 +88,7 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
         else:
             steps[dim] = max(int(round((coord_max[dim] - coord_min[dim]) / step_sizes_min[dim])),1) + 1  # + step_sizes_max[dim] / step_sizes_min[dim]
 
-    grid = np.full((smk3d.n_t, steps['x'], steps['y'], steps['z']), np.nan)
+    grid = np.full((smk3d.n_t, steps['x'], steps['y'], steps['z']), np.nan, np.float16)
 
     print('TOTAL SUBSMOKES: '+str(len(smk3d._subsmokes.values())))
     for i, subsmoke in enumerate(smk3d._subsmokes.values()):
@@ -98,10 +98,10 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
         #    continue
         #if subsmoke.mesh.coordinates['z'][1] - subsmoke.mesh.coordinates['z'][0] > 1.5*step_sizes_min['z']:
         #    continue
-        subsmoke_data = subsmoke.data.copy()
+        subsmoke_data = subsmoke.data.astype(np.float16, order = 'C')
         print('SUBSMOKE ' + str(i))
         if masked:
-            mask = subsmoke.mesh.get_obstruction_mask(smk3d.times)
+            mask = subsmoke.mesh.get_obstruction_mask(smk3d.times).astype(np.float16)
 
         start_idx = {dim: int(round((subsmoke.mesh.coordinates[dim][0] - coord_min[dim]) / step_sizes_min[dim])) for dim in ('x', 'y', 'z')}
         end_idx = {dim: int(round((subsmoke.mesh.coordinates[dim][-1] - coord_min[dim]) / step_sizes_min[dim])) for dim in ('x', 'y', 'z')}
@@ -146,6 +146,6 @@ except:
 
 #extract_v3_data(sim.slices[0],sim.slices[1],sim.slices[2],'velocity',0.5)
 
-#extract_f32_data(sim.smoke_3d[0],'smokePinos')
+extract_f32_data(sim.smoke_3d[0],'smokePinos')
 
 extract_f32_data(sim.smoke_3d[1],'hrpuvPinos')
