@@ -11,8 +11,7 @@ float velfactor;
 float smokfactor;
 
 StructuredBuffer<uint> pbuffer;
-StructuredBuffer<float> sbuffer;
-StructuredBuffer<float> hbuffer;
+StructuredBuffer<uint> sbuffer;
 
 StructuredBuffer<float> gridx;
 StructuredBuffer<float> gridy;
@@ -37,11 +36,11 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         uint y = (pbuffer[globalIndex] / dimensions[0]) % dimensions[1];
         uint z = pbuffer[globalIndex] / dimensions[0] / dimensions[1];
         //float3 pos = float3((x * 0.1 - 0.8) * 0.1, (y * 0.1) * 0.1, (16 + z * 0.1) * 0.1);
-        float3 pos = float3(gridx[x]*0.1, gridy[y]*0.1, gridz[z]*0.1);
+        float3 pos = float3(gridx[x], gridy[y], gridz[z]);
         positions[globalIndex] = pos;
         
-        float temp = hbuffer[globalIndex];
-        float opacity = sbuffer[globalIndex];
+        float opacity = float(sbuffer[globalIndex] >> 24);
+        float temp = float((sbuffer[globalIndex] << 8) >> 24);
         
         opacity = min(max(opacity / 50.0, 0), 1);
         float transferFunction = min(max((temp * 7 - 300) / 1300, 0), 1);

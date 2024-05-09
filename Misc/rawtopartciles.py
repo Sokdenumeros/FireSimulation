@@ -16,6 +16,7 @@ for i, val in enumerate(smokefiles):
 	smokename = smokefiles[i]
 	heatname = heatfiles[i]
 	print(val, end="\r")
+		
 	if smokename.split('_')[0] != heatname.split('_')[0]:
 		print('----------------------------')
 		print(smokename)
@@ -23,11 +24,18 @@ for i, val in enumerate(smokefiles):
 
 	shape = tuple([int(i) for i in smokename.split('.')[-4:-1]])
 
-	smoke_data = np.fromfile(smokedir + '/' + smokename, dtype=np.float32).reshape(shape)
+	smoke_data = np.fromfile(smokedir + '/' + smokename, dtype=np.float16).reshape(shape)
 	smoke_data = np.nan_to_num(smoke_data,0)
 
-	heat_data = np.fromfile(heatdir + '/' + heatname, dtype=np.float32).reshape(shape)
+	heat_data = np.fromfile(heatdir + '/' + heatname, dtype=np.float16).reshape(shape)
 	heat_data = np.nan_to_num(heat_data,0)
+
+	if i+1 < len(smokefiles):
+		next_smoke_data = np.fromfile(smokedir + '/' + smokefiles[i+1], dtype=np.float16).reshape(shape)
+		next_smoke_data = np.nan_to_num(next_smoke_data,0)
+
+		next_heat_data = np.fromfile(heatdir + '/' + heatfiles[i+1], dtype=np.float16).reshape(shape)
+		next_heat_data = np.nan_to_num(next_heat_data,0)
 
 	particles = []
 	smoke = []
@@ -52,10 +60,20 @@ for i, val in enumerate(smokefiles):
 	particles = aux[:, 0] * len(ycoords) * len(xcoords) + aux[:, 1] * len(xcoords) + aux[:, 2]
 	smoke = smoke_data[tuple(aux.T)]
 	heat = heat_data[tuple(aux.T)]
+	next_smoke = next_smoke_data[tuple(aux.T)]
+	next_heat = next_heat_data[tuple(aux.T)]
 
-	np.array(particles).astype(np.uint32).tofile('particles/'+smokename.split('_')[0]+'.raw')
-	np.array(smoke).astype(np.float32).tofile('smoke/'+smokename.split('_')[0]+'.raw')
-	np.array(heat).astype(np.float32).tofile('heat/'+smokename.split('_')[0]+'.raw')
+	compressed_data = np.clip(np.array(smoke).astype(np.uint32),a_min = 0, a_max = 255) << 24
+	compressed_data = (np.clip(np.array(heat).astype(np.uint32),a_min = 0, a_max = 255) << 16) | compressed_data
+	compressed_data = (np.clip(np.array(next_smoke).astype(np.uint32),a_min = 0, a_max = 255) << 8) | compressed_data
+	compressed_data = (np.clip(np.array(next_heat).astype(np.uint32),a_min = 0, a_max = 255))| compressed_data
+
+	#np.array(particles).astype(np.uint32).tofile('particles/'+smokename.split('_')[0]+'.raw')
+	#np.array(smoke).astype(np.float32).tofile('smoke/'+smokename.split('_')[0]+'.raw')
+	#np.array(heat).astype(np.float32).tofile('heat/'+smokename.split('_')[0]+'.raw')
+	tim = float(smokename.split('_')[0][1:])
+	np.array(particles).astype(np.uint32).tofile('particles/'+ f'T{tim:.1f}' +'.raw')
+	compressed_data.tofile('partData/'+ f'T{tim:.1f}' +'.raw')
 
 	#np.array(xvals).astype(np.float32).tofile('x/'+smokename.split('_')[0]+'.raw')
 	#np.array(yvals).astype(np.float32).tofile('y/'+smokename.split('_')[0]+'.raw')

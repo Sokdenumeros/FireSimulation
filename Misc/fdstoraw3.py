@@ -30,7 +30,7 @@ def extract_f32_data(data_element,name):
     for i, time in enumerate(times):
         t = round(time,2)
         flattened_data = data[i].flatten()
-        flattened_data.astype(np.float16).tofile(name + '/' + f'T{time:.1f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw')
+        flattened_data.astype(np.float16).tofile(name + '/' + f'T{time:07.2f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw')
     print('FINISHED')
 
 #DEPRECATED
@@ -147,5 +147,4 @@ except:
 #extract_v3_data(sim.slices[0],sim.slices[1],sim.slices[2],'velocity',0.5)
 
 extract_f32_data(sim.smoke_3d[0],'smokePinos')
-
 extract_f32_data(sim.smoke_3d[1],'hrpuvPinos')

@@ -14,8 +14,6 @@ public class simulationManager : MonoBehaviour
     ComputeBuffer pbuf;
     public byteLoader sman;
     ComputeBuffer sbuf;
-    public byteLoader hman;
-    ComputeBuffer hbuf;
 
     ComputeBuffer smokepositionBuffer;
     ComputeBuffer colorBuffer;
@@ -53,11 +51,6 @@ public class simulationManager : MonoBehaviour
         sbuf = new ComputeBuffer(nparticles, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
         sbuf.SetData(sman.getData());
         particleUpdater.SetBuffer(0, "sbuffer", sbuf);
-
-        hman.initialize(nparticles*4);
-        hbuf = new ComputeBuffer(nparticles, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
-        hbuf.SetData(hman.getData());
-        particleUpdater.SetBuffer(0, "hbuffer", hbuf);
 
         index = pman.getNbytes()/4;
 
@@ -117,11 +110,6 @@ public class simulationManager : MonoBehaviour
             particleUpdater.SetBuffer(0, "sbuffer", sbuf);
         }
 
-        if(hman.checkTimeInterval()) {
-            hbuf.SetData(hman.getData());
-            particleUpdater.SetBuffer(0, "hbuffer", hbuf);
-        }
-
         index = pman.getNbytes()/4;
         updateParticles();
         paintParticlesInstanced();
@@ -165,6 +153,8 @@ public class simulationManager : MonoBehaviour
         commandBuf.Release();
         pbuf.Release();
         sbuf.Release();
-        hbuf.Release();
+        gridx.Release();
+        gridy.Release();
+        gridz.Release();
     }
 }
