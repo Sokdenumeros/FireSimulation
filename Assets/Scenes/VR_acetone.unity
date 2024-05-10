@@ -1015,6 +1015,107 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!1 &1043865370
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1043865375}
+  - component: {fileID: 1043865374}
+  - component: {fileID: 1043865373}
+  - component: {fileID: 1043865372}
+  - component: {fileID: 1043865371}
+  m_Layer: 0
+  m_Name: SimulationManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1043865371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043865370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a02a33b8358e244e8c604fbba2a0822, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  camObject: {fileID: 426557576}
+--- !u!114 &1043865372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043865370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a113e01360a48ab4984b75b682ef7a0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timestep: 0.2
+  pre: ../Simulations/partData/T
+  post: .raw
+--- !u!114 &1043865373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043865370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a113e01360a48ab4984b75b682ef7a0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timestep: 0.2
+  pre: ../Simulations/particles/T
+  post: .raw
+--- !u!114 &1043865374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043865370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a13451fda2cf5c74dbfd0a1dd5348e9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particleUpdater: {fileID: 7200000, guid: fe72e02761444ca4f8bdd44629c4fcf9, type: 3}
+  smokemat: {fileID: 2100000, guid: 4d1dedb494433954b8015d37b27a0891, type: 2}
+  quadmesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  pman: {fileID: 1043865373}
+  sman: {fileID: 1043865372}
+  gridxFile: ../Simulations/smokePinos/gridX.raw
+  gridyFile: ../Simulations/smokePinos/gridY.raw
+  gridzFile: ../Simulations/smokePinos/gridZ.raw
+  nparticles: 700000
+  particleSize: 0.3
+  cam: {fileID: 0}
+--- !u!4 &1043865375
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043865370}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.0662915, y: 0.26036975, z: 0.9445428}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1126272714
 GameObject:
   m_ObjectHideFlags: 0
@@ -1035,7 +1136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1126272715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1118,6 +1219,9 @@ MonoBehaviour:
   dimx: 641
   dimy: 201
   dimz: 293
+  pman: {fileID: 0}
+  sman: {fileID: 0}
+  hman: {fileID: 0}
 --- !u!4 &1126272720
 Transform:
   m_ObjectHideFlags: 0
@@ -2002,3 +2106,4 @@ SceneRoots:
   - {fileID: 1126272720}
   - {fileID: 1268495119}
   - {fileID: 1269123757}
+  - {fileID: 1043865375}

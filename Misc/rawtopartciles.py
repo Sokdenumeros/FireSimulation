@@ -2,6 +2,8 @@ import numpy as np
 import os
 import math
 
+nparticles = 1000000
+opacityThreshold = 4
 smokedir = input('Enter smoke directory\n')
 heatdir = input('Enter heat directory\n')
 
@@ -56,7 +58,9 @@ for i, val in enumerate(smokefiles):
 	#				smoke.append(smoke_data[z_index,y_index,x_index])
 	#				heat.append(heat_data[z_index,y_index,x_index])
 	
-	aux = np.argwhere(smoke_data > 100)
+	aux = np.argwhere(smoke_data > opacityThreshold)
+	if len(aux) > 0:
+		aux = aux[np.random.choice(len(aux),nparticles,replace = False)]
 	particles = aux[:, 0] * len(ycoords) * len(xcoords) + aux[:, 1] * len(xcoords) + aux[:, 2]
 	smoke = smoke_data[tuple(aux.T)]
 	heat = heat_data[tuple(aux.T)]

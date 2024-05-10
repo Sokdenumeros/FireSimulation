@@ -782,7 +782,7 @@ MonoBehaviour:
   gridyFile: ../Simulations/smokePinos/gridY.raw
   gridzFile: ../Simulations/smokePinos/gridZ.raw
   nparticles: 700000
-  particleSize: 0.1
+  particleSize: 0.3
   cam: {fileID: 963194225}
 --- !u!4 &2028859187
 Transform:
