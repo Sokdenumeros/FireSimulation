@@ -30,8 +30,10 @@ Shader "Unlit/SmokeShader"
             StructuredBuffer<float4> colorbuffer;
             StructuredBuffer<float3> positionbuffer;
             int offset;
+            int nparts;
             float4 camposition;
             float particleSize;
+            bool order;
 
             struct appdata
             {
@@ -71,8 +73,8 @@ Shader "Unlit/SmokeShader"
                 #endif
                 */
 
-                
                 int id = GetIndirectInstanceID(svInstanceID);
+                if(order == 1) id = nparts - id;
                 float3 forward = normalize(camposition - positionbuffer[id]);
                 float3 right = cross(forward, float3(0,1,0));
                 float3 up = cross(right, forward);

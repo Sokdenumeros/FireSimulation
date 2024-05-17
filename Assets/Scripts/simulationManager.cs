@@ -35,7 +35,8 @@ public class simulationManager : MonoBehaviour
     private int index;
     private Material mat;
     private GraphicsBuffer commandBuf;
-    private GraphicsBuffer.IndirectDrawIndexedArgs[] commandData;    
+    private GraphicsBuffer.IndirectDrawIndexedArgs[] commandData;
+    public bool order;
 
     void Start()
     {
@@ -138,6 +139,9 @@ public class simulationManager : MonoBehaviour
         commandBuf.SetData(commandData);
         
         mat.SetVector("camposition", cam.transform.position);
+        mat.SetInt("nparts", index);
+        if(order) mat.SetInt("order",-1);
+        else mat.SetInt("order",1);
         RenderParams rp = new RenderParams(mat);
         //rp.worldBounds = new Bounds(-10000*Vector3.one, 10000*Vector3.one); // use tighter bounds for better FOV culling
         //rp.matProps = new MaterialPropertyBlock();

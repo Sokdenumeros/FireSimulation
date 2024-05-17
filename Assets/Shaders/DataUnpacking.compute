@@ -36,7 +36,7 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         uint y = (pbuffer[globalIndex] / dimensions[0]) % dimensions[1];
         uint z = pbuffer[globalIndex] / dimensions[0] / dimensions[1];
         //float3 pos = float3((x * 0.1 - 0.8) * 0.1, (y * 0.1) * 0.1, (16 + z * 0.1) * 0.1);
-        float3 pos = float3(gridx[x], gridy[y], gridz[z]);
+        float3 pos = float3(gridx[x], gridy[y], gridz[z])*0.1f;
         positions[globalIndex] = pos;
         
         float opacity = float(sbuffer[globalIndex] >> 24);

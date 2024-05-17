@@ -4,7 +4,7 @@ Z is vertical in smokeview, Y is vertical in unity, so the python scripts need t
 TRANSPARENT SHADER
 2 pass RevSub and Add shader
 
-THINGS TO DO-------------------------------------------------------------
+THINGS TO DO OLD-------------------------------------------------------------
 Need to paint the particles in order because fire looks diferent depending on the order(sort of)
 Rotate particles so they look at the camera -- NOT WORKING
 Adjust number of particles to avoid having extra ones at 0,0,0
@@ -25,6 +25,14 @@ numpy agrwhere / argpartition
 
 RenderParams rp = new RenderParams(material);
 rp.worldBounds = new Bounds(Vector3.zero, 10000*Vector3.one); // use tighter bounds for better FOV culling
+
+THINGS TO DO NEW----------------------------------------------------------
+particles lookat -camera.forward
+better culling (backface maybe)
+Move character
+Resize particles to fill empty space
+interpolate color
+load particle coords and data in different frames
 
 THINGS TO REDUCE NUMBER OF FRAGMENTS--------------------------------------
 double opacity and half particles
