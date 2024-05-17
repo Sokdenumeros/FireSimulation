@@ -138,7 +138,6 @@ public class simulationManager : MonoBehaviour
         commandData[0].instanceCount = (uint)index;
         commandBuf.SetData(commandData);
         
-        mat.SetVector("camposition", cam.transform.position);
         mat.SetVector("fw", cam.transform.forward);
         mat.SetInt("nparts", index);
         if(order) mat.SetInt("order",-1);

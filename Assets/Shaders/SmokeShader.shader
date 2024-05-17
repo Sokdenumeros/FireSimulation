@@ -31,7 +31,6 @@ Shader "Unlit/SmokeShader"
             StructuredBuffer<float3> positionbuffer;
             int offset;
             int nparts;
-            float4 camposition;
             float particleSize;
             bool order;
             float4 fw;
@@ -76,12 +75,12 @@ Shader "Unlit/SmokeShader"
 
                 int id = GetIndirectInstanceID(svInstanceID);
                 if(order == 1) id = nparts - id;
-                float3 forward = normalize(camposition - positionbuffer[id]);
-                forward = fw.xyz;
-                float3 right = cross(forward, float3(0,1,0));
-                float3 up = cross(right, forward);
+                //forward = normalize(camposition - positionbuffer[id]);
+                float3 forward = fw.xyz;
+                float3 right = normalize(cross(forward, float3(0,1,0)));
+                float3 up = normalize(cross(right, forward));
                 float3x3 rotationMatrix = float3x3(right, up, forward);
-                vert = float4(mul(transpose(rotationMatrix),v.vertex.xyz * particleSize),v.vertex.w) + float4(positionbuffer[id], 0);
+                vert = float4(mul(v.vertex.xyz * particleSize,rotationMatrix),v.vertex.w) + float4(positionbuffer[id], 0);
                 
 
                 o.vertex = mul(UNITY_MATRIX_VP,vert);
