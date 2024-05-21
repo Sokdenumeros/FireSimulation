@@ -124,6 +124,7 @@ public class simulationManager : MonoBehaviour
         //particleUpdater.SetFloat("smokfactor", smokeManager.getInterpolationFactor());
         //particleUpdater.SetFloat("deltaTime", Time.deltaTime);
         particleUpdater.SetInt("nparticles", index);
+        particleUpdater.SetFloat("interpfactor",sman.getInterpolationFactor());
 
         uint x, y, z;
         particleUpdater.GetKernelThreadGroupSizes(0, out x, out y, out z);

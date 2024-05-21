@@ -781,8 +781,8 @@ MonoBehaviour:
   gridxFile: ../Simulations/smokePinos/gridX.raw
   gridyFile: ../Simulations/smokePinos/gridY.raw
   gridzFile: ../Simulations/smokePinos/gridZ.raw
-  nparticles: 100000
-  particleSize: 0.1
+  nparticles: 1000000
+  particleSize: 0.5
   cam: {fileID: 963194225}
   order: 0
 --- !u!4 &2028859187
@@ -826,7 +826,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timestep: 0.2
-  pre: ../Simulations/partData/T
+  pre: ../Simulations/partDataOLD/T
   post: .raw
 --- !u!114 &2028859191
 MonoBehaviour:
@@ -841,7 +841,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timestep: 0.2
-  pre: ../Simulations/particles/T
+  pre: ../Simulations/particlesOLD/T
   post: .raw
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

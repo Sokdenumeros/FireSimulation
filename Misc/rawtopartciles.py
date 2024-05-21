@@ -4,6 +4,9 @@ import math
 
 nparticles = 1000000
 opacityThreshold = 4
+particleDir = 'particles'
+particleDataDir = 'partData'
+
 smokedir = input('Enter smoke directory\n')
 heatdir = input('Enter heat directory\n')
 
@@ -13,6 +16,16 @@ zcoords = np.fromfile(smokedir + '/gridZ.raw', dtype=np.float32)
 
 smokefiles = os.listdir(smokedir)[3:]
 heatfiles = os.listdir(heatdir)[3:]
+
+try:
+	os.mkdir(particleDir)
+except:
+	pass
+
+try:
+	os.mkdir(particleDataDir)
+except:
+	pass
 
 for i, val in enumerate(smokefiles):
 	smokename = smokefiles[i]
@@ -60,7 +73,7 @@ for i, val in enumerate(smokefiles):
 	
 	aux = np.argwhere(smoke_data > opacityThreshold)
 	if len(aux) > 0:
-		aux = aux[np.random.choice(len(aux),min(nparticles,len(aux)),replace = False)]
+		aux = aux[np.sort(np.random.choice(len(aux),min(nparticles,len(aux)),replace = False))]
 	particles = aux[:, 0] * len(ycoords) * len(xcoords) + aux[:, 1] * len(xcoords) + aux[:, 2]
 	smoke = smoke_data[tuple(aux.T)]
 	heat = heat_data[tuple(aux.T)]
@@ -76,8 +89,8 @@ for i, val in enumerate(smokefiles):
 	#np.array(smoke).astype(np.float32).tofile('smoke/'+smokename.split('_')[0]+'.raw')
 	#np.array(heat).astype(np.float32).tofile('heat/'+smokename.split('_')[0]+'.raw')
 	tim = float(smokename.split('_')[0][1:])
-	np.array(particles).astype(np.uint32).tofile('particles/'+ f'T{tim:.1f}' +'.raw')
-	compressed_data.tofile('partData/'+ f'T{tim:.1f}' +'.raw')
+	np.array(particles).astype(np.uint32).tofile(particleDir+'/'+ f'T{tim:.1f}' +'.raw')
+	compressed_data.tofile(particleDataDir+'/'+ f'T{tim:.1f}' +'.raw')
 
 	#np.array(xvals).astype(np.float32).tofile('x/'+smokename.split('_')[0]+'.raw')
 	#np.array(yvals).astype(np.float32).tofile('y/'+smokename.split('_')[0]+'.raw')

@@ -1,0 +1,33 @@
+To run a new simulation:
+
+1 - Preprocess
+	1.1 	Run python3 ./simulationinfo.py and drag and drop the directory of the simulation ie. "Entrepinos HF LC 7.6.5"
+		This will display what is inside each 3D smoke object so you can make sure which are the ones that you want.
+	1.2	Go to the last lines of fdstoraw3.py and make sure that you are extracting the data you want ie. make sure that extract_f32_data(sim.smoke_3d[0],'smokePinos') is the correct smoke3D and correct name
+	1.3	Run python3 ./fdstoraw3.py and drag and drop the directory of the simulation
+			For very big simulations this can give errors if you dont have enough memory. You can increase the virtual memory if this happens to you.
+			If you need to increase the virtual memory, note that the execution may take a very long time to complete.
+	1.4	Run python3 ./rawtoparticles.py and drag and drop first the smoke directory that has just been created and then the heat directory.
+			Before running it you can choose to adjust some parameters of the script:
+				nparticles - max number of particles per time instant
+				opacityThreshold - how much soot density is needed to count as a particle
+				particleDir - name of the directory where the particles will be stored
+				particleDataDir - name of the directory where the particles data (color) will be stored
+2 - Unity
+	2.1	You need a Unity scene with:
+			- A Disable Frustrum Culling script (set your main camera to Cam Object)
+			- Two Byte Loader Scripts
+				Timestep should be set at the time separation between data files
+				Pre should be set to the string characters of the file path previous to the timestamp (make sure that the path is correct)
+				Post should be set to the string characters of the file path posterior to the timestamp (should just be .raw)
+			- A simulation Manager script with
+				Particle Updater = DataUnpacking.compute
+				Smokemat = CustomSmokeSpot
+				Quadmesh = Quad
+				Pman = one of the two byte loader scripts, the one loading particles
+				Sman = the other byte loader, the one loading particle data
+				Gridx,y,z Files = path to the gridx,y,z files in smoke or heat directories
+				nparticles = max number of particles
+				particle size = radius of the particles
+				Cam = main camera
+				order (not relevant for now)

@@ -27,12 +27,13 @@ RenderParams rp = new RenderParams(material);
 rp.worldBounds = new Bounds(Vector3.zero, 10000*Vector3.one); // use tighter bounds for better FOV culling
 
 THINGS TO DO NEW----------------------------------------------------------
-particles lookat -camera.forward
 better culling (backface maybe)
-Move character
 Resize particles to fill empty space
 interpolate color
 load particle coords and data in different frames
+Sort particles in python to order the rendering
+Remove old code from python and unity scripts
+Instead of modifying hardcoded python parameters, pass them by argument when calling the script
 
 THINGS TO REDUCE NUMBER OF FRAGMENTS--------------------------------------
 double opacity and half particles
