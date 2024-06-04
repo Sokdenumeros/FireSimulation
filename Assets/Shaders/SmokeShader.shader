@@ -12,7 +12,6 @@ Shader "Unlit/SmokeShader"
         ZWrite Off
         BlendOp Add
         Blend SrcColor OneMinusSrcAlpha
-        Cull Off
         LOD 100
 
         Pass
@@ -32,7 +31,7 @@ Shader "Unlit/SmokeShader"
             int offset;
             int nparts;
             float particleSize;
-            bool order;
+            int order;
             float4 fw;
 
             struct appdata
