@@ -7,6 +7,9 @@ opacityThreshold = 4
 particleDir = 'particles'
 particleDataDir = 'partData'
 
+heatThreshold = 0
+smokeparticlesratio = 0.8 #this means that this fraction of all particles will be smoke particles
+
 smokedir = input('Enter smoke directory\n')
 heatdir = input('Enter heat directory\n')
 
@@ -71,9 +74,21 @@ for i, val in enumerate(smokefiles):
 	#				smoke.append(smoke_data[z_index,y_index,x_index])
 	#				heat.append(heat_data[z_index,y_index,x_index])
 	
+	#Coordinates of cells that fulfill the condition
 	aux = np.argwhere(smoke_data > opacityThreshold)
+	fireaux = np.argwhere(heat_data > heatThreshold)
+
+	#Choose one subsample of the coordiantes at random
+	if len(fireaux) > 0:
+		fireaux = fireaux[np.random.choice(len(fireaux),min(int(nparticles*(1-smokeparticlesratio)),len(fireaux)),replace = False)]
+
 	if len(aux) > 0:
-		aux = aux[np.sort(np.random.choice(len(aux),min(nparticles,len(aux)),replace = False))]
+		aux = aux[np.random.choice(len(aux),  min( max( int(nparticles*smokeparticlesratio) ,nparticles-len(fireaux) ) , len(aux))  ,replace = False)]
+	
+	aux = np.concatenate((fireaux,aux))
+	if len(aux) > 0:
+		aux = aux[np.lexsort(aux.T)]
+
 	particles = aux[:, 0] * len(ycoords) * len(xcoords) + aux[:, 1] * len(xcoords) + aux[:, 2]
 	smoke = smoke_data[tuple(aux.T)]
 	heat = heat_data[tuple(aux.T)]
