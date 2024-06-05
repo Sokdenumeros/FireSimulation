@@ -29,9 +29,7 @@ rp.worldBounds = new Bounds(Vector3.zero, 10000*Vector3.one); // use tighter bou
 THINGS TO DO NEW----------------------------------------------------------
 better culling (backface maybe)
 Resize particles to fill empty space
-interpolate color
 load particle coords and data in different frames
-Sort particles in python to order the rendering
 Remove old code from python and unity scripts
 Instead of modifying hardcoded python parameters, pass them by argument when calling the script
 Lighting by putting a point light every 50*50
@@ -40,6 +38,7 @@ rawtoparticles has duplicate particles
 rendering or transparency is not ordered correctly
 clean transfer function
 add public variables to control tf
+ordering needs more work
 
 THINGS TO REDUCE NUMBER OF FRAGMENTS--------------------------------------
 double opacity and half particles

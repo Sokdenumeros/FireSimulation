@@ -783,6 +783,9 @@ MonoBehaviour:
   gridzFile: ../Simulations/smokePinos/gridZ.raw
   nparticles: 1000000
   particleSize: 0.5
+  opacityfactor: 0.05
+  tfmin: 40
+  tfmax: 230
   cam: {fileID: 963194225}
   order: 0
 --- !u!4 &2028859187

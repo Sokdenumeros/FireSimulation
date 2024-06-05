@@ -4,6 +4,10 @@
 int nparticles;
 int3 dimensions;
 
+float tfmin;
+float tfmax;
+float tfscale;
+float opacityfactor;
 float deltaTime;
 
 float interpfactor;
@@ -40,12 +44,18 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         //float opacity = float(sbuffer[globalIndex] >> 24);
         //float temp = float((sbuffer[globalIndex] << 8) >> 24);
         float opacity = (1 - interpfactor) * float(sbuffer[globalIndex] >> 24) + interpfactor * float((sbuffer[globalIndex] << 16) >> 24);
-        float temp = (1 - interpfactor) * float((sbuffer[globalIndex] << 8) >> 24) + interpfactor * float((sbuffer[globalIndex] << 24) >> 24);
+        float heat = (1 - interpfactor) * float((sbuffer[globalIndex] << 8) >> 24) + interpfactor * float((sbuffer[globalIndex] << 24) >> 24);
+        
+        //float transferFunction = min(max((heat - 42) / 185, 0), 1);
+        float transferFunction;
+        if (heat <= tfmin) transferFunction = 0;
+        else if (heat >= tfmax) transferFunction = 1;
+        else transferFunction = (heat - tfmin) / (tfmax - tfmin);
+            
+       float4 c = lerp(float4(0, 0, 0, 1), float4(1, 0.46, 0.008, 1), transferFunction);
         
         opacity = min(max(opacity / 50.0, 0), 1);
-        float transferFunction = min(max((temp * 7 - 300) / 1300, 0), 1);
-        float4 c = lerp(float4(0, 0, 0, 1), float4(1, 0.46, 0.008, 1), transferFunction);
-        c.w *= opacity / 10;
+        c.w *= opacity * opacityfactor;
         colors[globalIndex] = c;
     }
 }

@@ -29,6 +29,9 @@ public class simulationManager : MonoBehaviour
     //PARAMETERS
     public int nparticles;
     public float particleSize;
+    public float opacityfactor;
+    public float tfmin;
+    public float tfmax;
     public GameObject cam;
 
     //OTHER
@@ -125,6 +128,9 @@ public class simulationManager : MonoBehaviour
         //particleUpdater.SetFloat("deltaTime", Time.deltaTime);
         particleUpdater.SetInt("nparticles", index);
         particleUpdater.SetFloat("interpfactor",sman.getInterpolationFactor());
+        particleUpdater.SetFloat("opacityfactor",opacityfactor);
+        particleUpdater.SetFloat("tfmax",tfmax);
+        particleUpdater.SetFloat("tfmin",tfmin);
 
         uint x, y, z;
         particleUpdater.GetKernelThreadGroupSizes(0, out x, out y, out z);
