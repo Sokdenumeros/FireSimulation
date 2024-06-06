@@ -41,6 +41,8 @@ public class simulationManager : MonoBehaviour
     private GraphicsBuffer.IndirectDrawIndexedArgs[] commandData;
     public bool order;
 
+    public LightManager lman;
+
     void Start()
     {
         smokepositionBuffer = new ComputeBuffer(nparticles, sizeof(float) * 3);
@@ -55,6 +57,8 @@ public class simulationManager : MonoBehaviour
         sbuf = new ComputeBuffer(nparticles, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
         sbuf.SetData(sman.getData());
         particleUpdater.SetBuffer(0, "sbuffer", sbuf);
+
+        lman.init(pbuf,sbuf);
 
         index = pman.getNbytes()/4;
 
@@ -108,13 +112,13 @@ public class simulationManager : MonoBehaviour
             pbuf.SetData(pman.getData());
             particleUpdater.SetBuffer(0, "pbuffer", pbuf);
         }
-
         if(sman.checkTimeInterval()) {
             sbuf.SetData(sman.getData());
             particleUpdater.SetBuffer(0, "sbuffer", sbuf);
         }
 
         index = pman.getNbytes()/4;
+        lman.updateLights(pbuf,sbuf,index);
         updateParticles();
         paintParticlesInstanced();
     }

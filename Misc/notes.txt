@@ -35,7 +35,6 @@ Instead of modifying hardcoded python parameters, pass them by argument when cal
 Lighting by putting a point light every 50*50
 adjust opacity depending on density
 rawtoparticles has duplicate particles
-rendering or transparency is not ordered correctly
 clean transfer function
 add public variables to control tf
 ordering needs more work
