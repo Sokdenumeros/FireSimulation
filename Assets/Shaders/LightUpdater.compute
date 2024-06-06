@@ -7,9 +7,9 @@ int3 dimensions;
 StructuredBuffer<uint> pbuffer;
 StructuredBuffer<uint> sbuffer;
 
-RWStructuredBuffer<float> totalopacity;
-RWStructuredBuffer<float> totalheat;
-RWStructuredBuffer<int> totalcount;
+RWStructuredBuffer<uint> totalopacity;
+RWStructuredBuffer<uint> totalheat;
+RWStructuredBuffer<uint> totalcount;
 //a
 [numthreads(8, 8, 8)]
 void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
@@ -17,14 +17,18 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
     int globalIndex = (int) (groupID.x * 512 + id.x + id.y * 8 + id.z * 64);
     if (globalIndex < nparticles)
     {
-        uint x = pbuffer[globalIndex] % dimensions[0];
+        uint x = (pbuffer[globalIndex] % dimensions[0]);
         uint y = (pbuffer[globalIndex] / dimensions[0]) % dimensions[1];
         uint z = pbuffer[globalIndex] / dimensions[0] / dimensions[1];
+        x = (x * 10) / dimensions[0];
+        y = (y * 10) / dimensions[1];
+        z = (z * 10) / dimensions[2];
         
-        float opacity = float(sbuffer[globalIndex] >> 24);
-        float heat = float((sbuffer[globalIndex] << 8) >> 24);
-        totalopacity[0] += opacity;
-        totalheat[0] += heat;
-        totalcount[0] += 1;
+        uint opacity = sbuffer[globalIndex] >> 24;
+        uint heat = (sbuffer[globalIndex] << 8) >> 24;
+        
+        //totalopacity[x * 100 + y * 10 + z] = 1;
+        totalheat[x * 100 + y * 10 + z] += heat;
+        totalcount[x * 100 + y * 10 + z] += 1;
     }
 }

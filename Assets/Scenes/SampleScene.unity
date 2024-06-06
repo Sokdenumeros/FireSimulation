@@ -542,6 +542,7 @@ GameObject:
   - component: {fileID: 2028859191}
   - component: {fileID: 2028859190}
   - component: {fileID: 2028859188}
+  - component: {fileID: 2028859192}
   m_Layer: 0
   m_Name: SimulationManager
   m_TagString: Untagged
@@ -576,6 +577,7 @@ MonoBehaviour:
   tfmax: 230
   cam: {fileID: 963194225}
   order: 0
+  lman: {fileID: 2028859192}
 --- !u!4 &2028859187
 Transform:
   m_ObjectHideFlags: 0
@@ -634,6 +636,20 @@ MonoBehaviour:
   timestep: 0.2
   pre: ../Simulations/particles/T
   post: .raw
+--- !u!114 &2028859192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028859183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6afdaaf2db88b2b4396fb86af203ba01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lightUpdater: {fileID: 7200000, guid: de5cdc9bdb87a4e44a2e3b11966e6c27, type: 3}
+  lightprefab: {fileID: 8074869883945233810, guid: 0b44624e1cd178a4cacef1ef3149cbd4, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

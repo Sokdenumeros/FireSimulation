@@ -44,7 +44,7 @@ public class simulationManager : MonoBehaviour
     private GraphicsBuffer.IndirectDrawIndexedArgs[] commandData;
     public bool order;
 
-    //public LightManager lman;
+    public LightManager lman;
 
     void Start()
     {
@@ -67,7 +67,7 @@ public class simulationManager : MonoBehaviour
         sbuf2 = new ComputeBuffer(nparticles, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
         sbuf2.SetData(sman.getNextData());
 
-        //lman.init(pbuf,sbuf);
+        lman.init(pbuf,sbuf);
 
         index = pman.getNbytes()/4;
 
@@ -112,6 +112,7 @@ public class simulationManager : MonoBehaviour
         }
 
         particleUpdater.SetInts("dimensions", new int[3] { nbytesx/4, nbytesy/4, nbytesz/4});
+        lman.setDimensions(nbytesx/4, nbytesy/4, nbytesz/4);
     }
 
     // Update is called once per frame
@@ -141,7 +142,7 @@ public class simulationManager : MonoBehaviour
         }
 
         index = pman.getNbytes()/4;
-        //lman.updateLights(pbuf,sbuf,index);
+        lman.updateLights(pbuf,sbuf,index);
         updateParticles();
         paintParticlesInstanced();
     }
@@ -190,6 +191,7 @@ public class simulationManager : MonoBehaviour
         colorBuffer.Release();
         commandBuf.Release();
         pbuf.Release();
+        pbuf2.Release();
         sbuf.Release();
         sbuf2.Release();
         gridx.Release();
