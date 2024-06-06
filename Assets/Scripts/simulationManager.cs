@@ -12,8 +12,11 @@ public class simulationManager : MonoBehaviour
 
     public byteLoader pman;
     ComputeBuffer pbuf;
+    ComputeBuffer pbuf2;
     public byteLoader sman;
     ComputeBuffer sbuf;
+    ComputeBuffer sbuf2;
+    Queue<int> GPUqueue = new Queue<int>();
 
     ComputeBuffer smokepositionBuffer;
     ComputeBuffer colorBuffer;
@@ -41,7 +44,7 @@ public class simulationManager : MonoBehaviour
     private GraphicsBuffer.IndirectDrawIndexedArgs[] commandData;
     public bool order;
 
-    public LightManager lman;
+    //public LightManager lman;
 
     void Start()
     {
@@ -53,12 +56,18 @@ public class simulationManager : MonoBehaviour
         pbuf.SetData(pman.getData());
         particleUpdater.SetBuffer(0, "pbuffer", pbuf);
 
+        pbuf2 = new ComputeBuffer(nparticles, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        pbuf2.SetData(pman.getNextData());
+
         sman.initialize(nparticles*4);
         sbuf = new ComputeBuffer(nparticles, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
         sbuf.SetData(sman.getData());
         particleUpdater.SetBuffer(0, "sbuffer", sbuf);
 
-        lman.init(pbuf,sbuf);
+        sbuf2 = new ComputeBuffer(nparticles, 4, ComputeBufferType.Default, ComputeBufferMode.Dynamic);
+        sbuf2.SetData(sman.getNextData());
+
+        //lman.init(pbuf,sbuf);
 
         index = pman.getNbytes()/4;
 
@@ -109,16 +118,30 @@ public class simulationManager : MonoBehaviour
     void Update()
     { 
         if(pman.checkTimeInterval()) {
-            pbuf.SetData(pman.getData());
+            ComputeBuffer aux = pbuf;
+            pbuf = pbuf2;
+            pbuf2 = aux;
             particleUpdater.SetBuffer(0, "pbuffer", pbuf);
+            //pbuf.SetData(pman.getData());
+            GPUqueue.Enqueue(0);
         }
         if(sman.checkTimeInterval()) {
-            sbuf.SetData(sman.getData());
+            ComputeBuffer aux = sbuf;
+            sbuf = sbuf2;
+            sbuf2 = aux;
             particleUpdater.SetBuffer(0, "sbuffer", sbuf);
+            //sbuf.SetData(sman.getData());
+            GPUqueue.Enqueue(1);
+        }
+
+        if(GPUqueue.Count > 0){
+            int actionid = GPUqueue.Dequeue();
+            if (actionid == 0) pbuf2.SetData(pman.getNextData());
+            else if(actionid == 1) sbuf2.SetData(sman.getNextData());
         }
 
         index = pman.getNbytes()/4;
-        lman.updateLights(pbuf,sbuf,index);
+        //lman.updateLights(pbuf,sbuf,index);
         updateParticles();
         paintParticlesInstanced();
     }
@@ -168,6 +191,7 @@ public class simulationManager : MonoBehaviour
         commandBuf.Release();
         pbuf.Release();
         sbuf.Release();
+        sbuf2.Release();
         gridx.Release();
         gridy.Release();
         gridz.Release();

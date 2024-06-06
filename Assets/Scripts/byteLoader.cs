@@ -20,6 +20,11 @@ public class byteLoader : MonoBehaviour
         return dataList.First.Value;
     }
 
+    public byte[] getNextData(){
+        checkTimeInterval();
+        return dataList.First.Next.Value;
+    }
+
     public int getNbytes(){
         checkTimeInterval();
         return bytes.First.Value;
