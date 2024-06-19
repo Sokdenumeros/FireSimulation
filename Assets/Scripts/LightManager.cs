@@ -20,7 +20,7 @@ public class LightManager : MonoBehaviour
         lights = new Light[1000];
 
         for(int x = 0; x < 10; ++x) for(int y = 0; y < 10; ++y) for(int z = 0; z < 10; ++z) {
-            lights[x*100+y*10+z] = Instantiate(lightprefab, new Vector3(x, y, z), Quaternion.identity).GetComponent<Light>();
+            lights[x*100+y*10+z] = Instantiate(lightprefab, new Vector3(x*6, y*2, z*3)/3, Quaternion.identity).GetComponent<Light>();
         }
         
         opacitybuf = new ComputeBuffer(1000, sizeof(uint));
@@ -63,7 +63,7 @@ public class LightManager : MonoBehaviour
         for(int xx = 0; xx < 10; ++xx) for(int yy = 0; yy < 10; ++yy) for(int zz = 0; zz < 10; ++zz) {
             if (heat[xx*100+yy*10+zz] == 0) lights[xx*100+yy*10+zz].gameObject.SetActive(false);
             else lights[xx*100+yy*10+zz].gameObject.SetActive(true);
-            lights[xx*100+yy*10+zz].intensity = heat[xx*100+yy*10+zz]/count[xx*100+yy*10+zz];
+            lights[xx*100+yy*10+zz].intensity = heat[xx*100+yy*10+zz];
         }
         heatbuf.SetData(clear);
         countbuf.SetData(clear);
