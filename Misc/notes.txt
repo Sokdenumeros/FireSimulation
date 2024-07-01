@@ -85,3 +85,10 @@ THINGS TO FIX ABOUT THE FDSREADER------------------------------------------
 global_max is not needed since it is exactly the same as coord_max
 Why does it take out the first index of the array but saves the last an adds the last back again when it wasn't taken out in the first place?
 why does it only calculate n_repeat if masked? it should repeat the array as long as it has different step size regardless of the mask
+
+BITONIC SORT
+https://www.geeksforgeeks.org/bitonic-sort/
+https://en.wikipedia.org/wiki/Bitonic_sorter
+https://developer.nvidia.com/gpugems/gpugems2/part-vi-simulation-and-numerical-algorithms/chapter-46-improved-gpu-sorting
+https://forum.unity.com/threads/bitonic-sort-compute-shaders.1541762/
+https://github.com/GarrettGunnell/Pixel-Sorting

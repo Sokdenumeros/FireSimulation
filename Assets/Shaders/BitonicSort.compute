@@ -1,0 +1,30 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+int nparticles;
+int3 dimensions;
+
+RWStructuredBuffer<uint> pbuffer;
+RWStructuredBuffer<float> distances;
+
+void compareAndSwap(uint i1, uint i2) {
+    if (distances[i1] > distances[i2]) {
+        float tempf = distances[i1];
+        distances[i1] = distances[i2];
+        distances[i2] = tempf;
+        uint tempi = pbuffer[i1];
+        pbuffer[i1] = pbuffer[i2];
+        pbuffer[i2] = tempi;
+    }
+}
+
+[numthreads(8, 8, 8)]
+void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
+{
+    int globalIndex = (int) (groupID.x * 512 + id.x + id.y * 8 + id.z * 64);
+    globalIndex *= 2;
+    if (globalIndex+1 < nparticles)
+    {
+        compareAndSwap(globalIndex, globalIndex + 1);
+    }
+}
