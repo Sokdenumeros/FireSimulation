@@ -1,4 +1,3 @@
-// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
 int nparticles;
@@ -22,12 +21,6 @@ StructuredBuffer<float> gridz;
 RWStructuredBuffer<float3> positions;
 RWStructuredBuffer<float4> colors;
 
-float random(float2 uv)
-{
-    //return frac(sin(dot(uv,float2(12.9898,78.233)))*43758.5453123);
-    return frac(dot(uv, float2(12.9898, 78.233)) * 43758.5453123);
-}
-
 [numthreads(8, 8, 8)]
 void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
 {
@@ -37,16 +30,12 @@ void CSMain(uint3 id : SV_GroupThreadID, uint3 groupID : SV_GroupID)
         uint x = pbuffer[globalIndex] % dimensions[0];
         uint y = (pbuffer[globalIndex] / dimensions[0]) % dimensions[1];
         uint z = pbuffer[globalIndex] / dimensions[0] / dimensions[1];
-        //float3 pos = float3((x * 0.1 - 0.8) * 0.1, (y * 0.1) * 0.1, (16 + z * 0.1) * 0.1);
         float3 pos = float3(gridx[x], gridy[y], gridz[z]);
         positions[globalIndex] = pos;
         
-        //float opacity = float(sbuffer[globalIndex] >> 24);
-        //float temp = float((sbuffer[globalIndex] << 8) >> 24);
         float opacity = (1 - interpfactor) * float(sbuffer[globalIndex] >> 24) + interpfactor * float((sbuffer[globalIndex] << 16) >> 24);
         float heat = (1 - interpfactor) * float((sbuffer[globalIndex] << 8) >> 24) + interpfactor * float((sbuffer[globalIndex] << 24) >> 24);
         
-        //float transferFunction = min(max((heat - 42) / 185, 0), 1);
         float transferFunction;
         if (heat <= tfmin) transferFunction = 0;
         else if (heat >= tfmax) transferFunction = 1;

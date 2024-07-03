@@ -5,46 +5,60 @@ using System.IO;
 
 public class simulationManager : MonoBehaviour
 {
-    //DRAW ASSETS
+    //Compute shader
     public ComputeShader particleUpdater;
+
+    //Material and mesh to use for the particles
     public Material smokemat;
     public Mesh quadmesh;
 
+    //This class and buffers store the particle positions in the grid (index)
     public byteLoader pman;
     ComputeBuffer pbuf;
     ComputeBuffer pbuf2;
+
+    //This class and buffers store the particle status (HRPVU and soot_density)
     public byteLoader sman;
     ComputeBuffer sbuf;
     ComputeBuffer sbuf2;
+    
+    //Things that need to be sent to the GPU are queued so we can distribute them along several frames.
     Queue<int> GPUqueue = new Queue<int>();
 
+    //World coordinates of the particles, this buffer is filled in a compute shader
     ComputeBuffer smokepositionBuffer;
+    //RGB color of the particles, this buffer is filled in a compute shader
     ComputeBuffer colorBuffer;
 
-    public string gridxFile;
-    public string gridyFile;
-    public string gridzFile;
-
+    //These buffers store the mapping from grid indices to world coordinates
     ComputeBuffer gridx;
     ComputeBuffer gridy;
     ComputeBuffer gridz;
 
-    //PARAMETERS
-    public int nparticles;
-    public float particleSize;
-    public float opacityfactor;
-    public float tfmin;
-    public float tfmax;
-    public GameObject cam;
+    //Path to the files containing the mapping from grid indices to world coordinates
+    public string gridxFile;
+    public string gridyFile;
+    public string gridzFile;
 
-    //OTHER
+    //PARAMETERS
+    public int nparticles;      //Max number of particles to load
+    public float particleSize;  //Scale factor for the quad mesh
+    public float opacityfactor; //Multiplies the opacity of the particle
+    public float tfmin;         //min value of the heat transfer function interval
+    public float tfmax;         //max value of the heat transfer function interval
+    public GameObject cam;      //camera object, the particles will face in the opposite direction of this object
+    public bool order;          //Order to draw the particles, 0 - n or n - 0.
+
+    //Light manager
+    public LightManager lman;
+
+    //Number of particles that have been loaded / need to be drawn
     private int index;
+    
+    //OTHER
     private Material mat;
     private GraphicsBuffer commandBuf;
     private GraphicsBuffer.IndirectDrawIndexedArgs[] commandData;
-    public bool order;
-
-    public LightManager lman;
 
     void Start()
     {
@@ -123,7 +137,6 @@ public class simulationManager : MonoBehaviour
             pbuf = pbuf2;
             pbuf2 = aux;
             particleUpdater.SetBuffer(0, "pbuffer", pbuf);
-            //pbuf.SetData(pman.getData());
             GPUqueue.Enqueue(0);
         }
         if(sman.checkTimeInterval()) {
@@ -131,7 +144,6 @@ public class simulationManager : MonoBehaviour
             sbuf = sbuf2;
             sbuf2 = aux;
             particleUpdater.SetBuffer(0, "sbuffer", sbuf);
-            //sbuf.SetData(sman.getData());
             GPUqueue.Enqueue(1);
         }
 
@@ -150,10 +162,6 @@ public class simulationManager : MonoBehaviour
 
     private void updateParticles()
     {
-        //particleUpdater.SetFloat("tempfactor", temperatureManager.getInterpolationFactor());
-        //particleUpdater.SetFloat("velfactor", velocityManager.getInterpolationFactor());
-        //particleUpdater.SetFloat("smokfactor", smokeManager.getInterpolationFactor());
-        //particleUpdater.SetFloat("deltaTime", Time.deltaTime);
         particleUpdater.SetInt("nparticles", index);
         particleUpdater.SetFloat("interpfactor",sman.getInterpolationFactor());
         particleUpdater.SetFloat("opacityfactor",opacityfactor);
@@ -165,7 +173,6 @@ public class simulationManager : MonoBehaviour
         int threadsx = (int)(index / (x*y*z));
         if (index % (x * y * z) > 0) threadsx++;
         if (threadsx > 0) particleUpdater.Dispatch(0, threadsx, 1, 1);
-
     }
 
     private void paintParticlesInstanced()
@@ -177,10 +184,8 @@ public class simulationManager : MonoBehaviour
         mat.SetInt("nparts", index);
         if(order) mat.SetInt("order",-1);
         else mat.SetInt("order",1);
+        mat.SetFloat("particleSize", particleSize);
         RenderParams rp = new RenderParams(mat);
-        //rp.worldBounds = new Bounds(-10000*Vector3.one, 10000*Vector3.one); // use tighter bounds for better FOV culling
-        //rp.matProps = new MaterialPropertyBlock();
-        //rp.matProps.SetMatrix("_ObjectToWorld", Matrix4x4.Scale(new Vector3(particleSize, particleSize, particleSize)));
         Graphics.RenderMeshIndirect(rp, quadmesh, commandBuf, 1);
         
         

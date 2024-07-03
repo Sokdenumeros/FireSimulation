@@ -1100,8 +1100,12 @@ MonoBehaviour:
   gridzFile: ../Simulations/smokePinos/gridZ.raw
   nparticles: 1000000
   particleSize: 0.5
+  opacityfactor: 0
+  tfmin: 0
+  tfmax: 0
   cam: {fileID: 426557576}
   order: 1
+  lman: {fileID: 0}
 --- !u!4 &1043865375
 Transform:
   m_ObjectHideFlags: 0
@@ -1109,127 +1113,6 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1043865370}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.0662915, y: 0.26036975, z: 0.9445428}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1126272714
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1126272720}
-  - component: {fileID: 1126272719}
-  - component: {fileID: 1126272718}
-  - component: {fileID: 1126272717}
-  - component: {fileID: 1126272716}
-  - component: {fileID: 1126272715}
-  m_Layer: 0
-  m_Name: GPUSimulationManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1126272715
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126272714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a02a33b8358e244e8c604fbba2a0822, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  camObject: {fileID: 426557576}
---- !u!114 &1126272716
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126272714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4f0c79eeb130d94aabdfd881873487f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timestep: 0.6
-  pre: ../Simulations/smokePinos_T
-  post: _.293.201.641.raw
---- !u!114 &1126272717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126272714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 314cae04650a1ce4486a8a025a1f1c09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timestep: 3.6
-  pre: ../Simulations/vvelocity_T
-  post: _.61.121.61.raw
---- !u!114 &1126272718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126272714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4f0c79eeb130d94aabdfd881873487f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timestep: 0.6
-  pre: ../Simulations/hrpuvPinos_T
-  post: _.293.201.641.raw
---- !u!114 &1126272719
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126272714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a95a4eccbed2d445811e003e66e5cdb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  temperatureManager: {fileID: 1126272718}
-  smokeManager: {fileID: 1126272716}
-  velocityManager: {fileID: 1126272717}
-  particleUpdater: {fileID: 7200000, guid: c13e6300470ce4642b5f3b406a7cb87a, type: 3}
-  smokemat: {fileID: 2100000, guid: 4d1dedb494433954b8015d37b27a0891, type: 2}
-  quadmesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
-  nparticles: 130000
-  particleSize: 0.1
-  cam: {fileID: 426557576}
-  dimx: 641
-  dimy: 201
-  dimz: 293
-  pman: {fileID: 0}
-  sman: {fileID: 0}
-  hman: {fileID: 0}
---- !u!4 &1126272720
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126272714}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.0662915, y: 0.26036975, z: 0.9445428}
@@ -2119,7 +2002,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 2046181364}
-  - {fileID: 1126272720}
   - {fileID: 1268495119}
   - {fileID: 1269123757}
   - {fileID: 1043865375}

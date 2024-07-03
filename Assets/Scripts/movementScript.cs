@@ -16,7 +16,6 @@ public class movementScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Vector3 displacement = head.transform.forward * Input.GetAxis("Vertical");
         Vector3 fw = new Vector3(head.transform.forward.x,0f, head.transform.forward.z);
         fw = fw.normalized;
 
@@ -24,7 +23,5 @@ public class movementScript : MonoBehaviour
         displacement += Vector3.Cross(up, fw) * Input.GetAxis("Horizontal");
         displacement += up * (Input.GetAxis("up") - Input.GetAxis("down"));
         transform.position += displacement * Time.deltaTime * speed;
-        //new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("up")- Input.GetAxis("down"), Input.GetAxis("Vertical")) * Time.deltaTime*speed;
-        //new Vector3(transform.forward.x, transform.forward.y, 0f) * Input.GetAxis("Vertical");
     }
 }
