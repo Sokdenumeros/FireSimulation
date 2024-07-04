@@ -4,11 +4,14 @@ import os
 from typing import Dict, Tuple, Literal, Union
 import math
 
-#sim.smoke_3d[0].subsmokes[0].times
-#sim.smoke_3d[0].subsmokes[0].data
-#sim.smoke_3d[0].subsmokes[0].mesh.coordinates
+def extract_f32_data(*args):
+    data_element = args[0]
+    name = data_element.quantity.name
+    name = name.replace(' ','').replace('.','').replace(',','').replace('_','')
 
-def extract_f32_data(data_element,name):
+    if len(args) == 2:
+        name = args[1]
+
     try:
         os.mkdir(name)
     except:
@@ -32,24 +35,6 @@ def extract_f32_data(data_element,name):
         flattened_data = data[i].flatten()
         flattened_data.astype(np.float16).tofile(name + '/' + f'T{time:07.2f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw')
     print('FINISHED')
-
-#DEPRECATED
-def extract_v3_data(de1, de2, de3, name):
-    print('THIS FUNCTION IS DEPRECATED')
-    times = de1.times
-    data1 = de1.to_global(masked = True)
-    data2 = de2.to_global(masked = True)
-    data3 = de3.to_global(masked = True)
-    #in unity its xyz with y being the vertical component while in smokeview its xyz with z being the vertical component
-    vectors = np.stack([data1, data3, data2], axis=4)
-    vectors = np.transpose(vectors, (0, 2, 3, 1, 4))
-
-    previous = times[0] - timestep
-    for i, time in enumerate(times):
-        if time - previous >= timestep:
-            flattened_data = vectors[i].flatten()
-            flattened_data.astype(np.float32).tofile(name + f'_T{time:.1f}_.' + str(vectors.shape[1]) + '.' + str(vectors.shape[2]) + '.' + str(vectors.shape[3]) + '.raw')
-            previous = round(time,2)
 
 def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: bool = False) -> Union[np.ndarray, Tuple[np.ndarray, Dict[Literal['x', 'y', 'z'], np.ndarray]]]:
     if len(smk3d._subsmokes) == 0:
@@ -92,12 +77,6 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
 
     print('TOTAL SUBSMOKES: '+str(len(smk3d._subsmokes.values())))
     for i, subsmoke in enumerate(smk3d._subsmokes.values()):
-        #if subsmoke.mesh.coordinates['x'][1] - subsmoke.mesh.coordinates['x'][0] > 1.5*step_sizes_min['x']:
-        #    continue
-        #if subsmoke.mesh.coordinates['y'][1] - subsmoke.mesh.coordinates['y'][0] > 1.5*step_sizes_min['y']:
-        #    continue
-        #if subsmoke.mesh.coordinates['z'][1] - subsmoke.mesh.coordinates['z'][0] > 1.5*step_sizes_min['z']:
-        #    continue
         subsmoke_data = subsmoke.data.astype(np.float16, order = 'C')
         print('SUBSMOKE ' + str(i))
         if masked:
@@ -142,9 +121,9 @@ try:
 except:
     sim = fdsreader.Simulation(f)
 
-#extract_f32_data(sim.slices[3],'temperature',0.5)
+#USE THIS TO GIVE A CUSTOM NAME TO THE DIRECTORIES
+#extract_f32_data(sim.smoke_3d[0],'soot')
+#extract_f32_data(sim.smoke_3d[1],'heat')
 
-#extract_v3_data(sim.slices[0],sim.slices[1],sim.slices[2],'velocity',0.5)
-
-extract_f32_data(sim.smoke_3d[0],'smokePinos')
-extract_f32_data(sim.smoke_3d[1],'hrpuvPinos')
+extract_f32_data(sim.smoke_3d[0])
+extract_f32_data(sim.smoke_3d[1])

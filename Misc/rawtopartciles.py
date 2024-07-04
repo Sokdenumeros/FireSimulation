@@ -4,11 +4,11 @@ import math
 
 nparticles = 1000000
 opacityThreshold = 4
-particleDir = 'particles'
-particleDataDir = 'partData'
-
 heatThreshold = 0
 smokeparticlesratio = 0.8 #this means that this fraction of all particles will be smoke particles
+
+particleDir = 'particles'
+particleDataDir = 'partData'
 
 smokedir = input('Enter smoke directory\n')
 heatdir = input('Enter heat directory\n')
