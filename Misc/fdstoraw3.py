@@ -4,6 +4,20 @@ import os
 from typing import Dict, Tuple, Literal, Union
 import math
 
+def extractMeshes(sim,fileName):
+    with open(fileName, "w") as csvfile:
+  
+        for obstruction in sim.obstructions:
+            csvfile.write(str(obstruction.bounding_box.x_start)+'\n')
+            csvfile.write(str(obstruction.bounding_box.x_end)+'\n')
+            csvfile.write(str(obstruction.bounding_box.y_start)+'\n')
+            csvfile.write(str(obstruction.bounding_box.y_end)+'\n')
+            csvfile.write(str(obstruction.bounding_box.z_start)+'\n')
+            csvfile.write(str(obstruction.bounding_box.z_end)+'\n')
+
+    print(f"Bounding box data has been saved to {fileName}")
+
+
 def extract_f32_data(*args):
     data_element = args[0]
     name = data_element.quantity.name
@@ -125,5 +139,6 @@ except:
 #extract_f32_data(sim.smoke_3d[0],'soot')
 #extract_f32_data(sim.smoke_3d[1],'heat')
 
+extractMeshes(sim,'boundingBoxes.txt')
 extract_f32_data(sim.smoke_3d[0])
 extract_f32_data(sim.smoke_3d[1])
