@@ -44,7 +44,7 @@ def extract_f32_data(*args):
     for i, time in enumerate(times):
         t = round(time,2)
         flattened_data = data[i].flatten()
-        flattened_data.astype(np.float16).tofile(name + '/' + f'T{time:07.2f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw')
+        flattened_data.astype(np.uint8).tofile(name + '/' + f'T{time:07.2f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw8')
     print('FINISHED')
 
 def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: bool = False) -> Union[np.ndarray, Tuple[np.ndarray, Dict[Literal['x', 'y', 'z'], np.ndarray]]]:
@@ -84,14 +84,28 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
         else:
             steps[dim] = max(int(round((coord_max[dim] - coord_min[dim]) / step_sizes_min[dim])),1) + 1  # + step_sizes_max[dim] / step_sizes_min[dim]
 
-    grid = np.full((smk3d.n_t, steps['x'], steps['y'], steps['z']), np.nan, np.float16)
-
     print('TOTAL SUBSMOKES: '+str(len(smk3d._subsmokes.values())))
+    minvals = []
+    maxvals = []
+    counter = 0
+    for i in smk3d._subsmokes.values():
+        print(counter, end="\r")
+        counter = counter + 1
+        maxvals.append(i.data.max())
+        minvals.append(i.data.min())
+
+    if min(minvals) < 0:
+        print('WARNING, min value below 0, consider using the fp16 version')
+    if max(maxvals) > 255:
+        print('WARNING, max value above 255, consider using the fp16 version')
+
+    grid = np.full((smk3d.n_t, steps['x'], steps['y'], steps['z']), np.nan, np.uint8)
+
     for i, subsmoke in enumerate(smk3d._subsmokes.values()):
-        subsmoke_data = subsmoke.data.astype(np.float16, order = 'C')
+        subsmoke_data = subsmoke.data.astype(np.uint8, order = 'C')
         print('SUBSMOKE ' + str(i))
         if masked:
-            mask = subsmoke.mesh.get_obstruction_mask(smk3d.times).astype(np.float16)
+            mask = subsmoke.mesh.get_obstruction_mask(smk3d.times).astype(np.uint8)
 
         start_idx = {dim: int(round((subsmoke.mesh.coordinates[dim][0] - coord_min[dim]) / step_sizes_min[dim])) for dim in ('x', 'y', 'z')}
         end_idx = {dim: int(round((subsmoke.mesh.coordinates[dim][-1] - coord_min[dim]) / step_sizes_min[dim])) for dim in ('x', 'y', 'z')}
