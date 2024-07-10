@@ -15460,9 +15460,9 @@ MonoBehaviour:
   quadmesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   pman: {fileID: 1043865373}
   sman: {fileID: 1043865372}
-  gridxFile: ../Simulations/smokePinos/gridX.raw
-  gridyFile: ../Simulations/smokePinos/gridY.raw
-  gridzFile: ../Simulations/smokePinos/gridZ.raw
+  gridxFile: ../Simulations/SOOTDENSITY/gridX.raw
+  gridyFile: ../Simulations/SOOTDENSITY/gridY.raw
+  gridzFile: ../Simulations/SOOTDENSITY/gridZ.raw
   nparticles: 1000000
   particleSize: 0.5
   opacityfactor: 0.05
