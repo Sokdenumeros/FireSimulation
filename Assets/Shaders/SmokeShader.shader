@@ -72,7 +72,6 @@ Shader "Unlit/SmokeShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                UNITY_SETUP_INSTANCE_ID(i);
                 fixed4 col = tex2D(_MainTex, i.uv);
                 return col*i.pcolor;
             }
