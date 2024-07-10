@@ -1,0 +1,9 @@
+To Use:
+
+Standard RP & URP:
+
+Assign included material to Skybox Material in lighting panel.
+
+HDRP:
+
+Assign cubemap to HDRI sky on Volume Component.
