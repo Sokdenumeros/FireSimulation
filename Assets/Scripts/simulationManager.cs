@@ -43,6 +43,7 @@ public class simulationManager : MonoBehaviour
     //PARAMETERS
     public int nparticles;      //Max number of particles to load
     public float particleSize;  //Scale factor for the quad mesh
+    public float smokeparticleSize; // Scale factor for the smoke particles
     public float opacityfactor; //Multiplies the opacity of the particle
     public float tfmin;         //min value of the heat transfer function interval
     public float tfmax;         //max value of the heat transfer function interval
@@ -92,6 +93,7 @@ public class simulationManager : MonoBehaviour
         mat.SetBuffer("positionbuffer", smokepositionBuffer);
         mat.SetBuffer("colorbuffer", colorBuffer);
         mat.SetFloat("particleSize", particleSize);
+        mat.SetFloat("smokeparticleSize", smokeparticleSize);
 
         commandBuf = new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments, 1, GraphicsBuffer.IndirectDrawIndexedArgs.size);
         commandData = new GraphicsBuffer.IndirectDrawIndexedArgs[1];
@@ -152,6 +154,11 @@ public class simulationManager : MonoBehaviour
             if (actionid == 0) pbuf2.SetData(pman.getNextData());
             else if(actionid == 1) sbuf2.SetData(sman.getNextData());
         }
+        while(GPUqueue.Count > 2){
+            int actionid = GPUqueue.Dequeue();
+            if (actionid == 0) pbuf2.SetData(pman.getNextData());
+            else if(actionid == 1) sbuf2.SetData(sman.getNextData());
+        }
 
         index = pman.getNbytes()/4;
         //lman.updateLights(pbuf,sbuf,index);
@@ -185,6 +192,7 @@ public class simulationManager : MonoBehaviour
         if(order) mat.SetInt("order",-1);
         else mat.SetInt("order",1);
         mat.SetFloat("particleSize", particleSize);
+        mat.SetFloat("smokeparticleSize", smokeparticleSize);
         RenderParams rp = new RenderParams(mat);
         Graphics.RenderMeshIndirect(rp, quadmesh, commandBuf, 1);
         

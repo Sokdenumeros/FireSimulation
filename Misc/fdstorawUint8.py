@@ -96,8 +96,10 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
 
     if min(minvals) < 0:
         print('WARNING, min value below 0, consider using the fp16 version')
+        print(min(minvals))
     if max(maxvals) > 255:
         print('WARNING, max value above 255, consider using the fp16 version')
+        print(max(maxvals))
 
     grid = np.full((smk3d.n_t, steps['x'], steps['y'], steps['z']), np.nan, np.uint8)
 
