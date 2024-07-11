@@ -1100,6 +1100,7 @@ MonoBehaviour:
   gridzFile: ../Simulations/SOOTDENSITY/gridZ.raw
   nparticles: 1000000
   particleSize: 0.5
+  smokeparticleSize: 0.5
   opacityfactor: 0.05
   tfmin: 40
   tfmax: 230

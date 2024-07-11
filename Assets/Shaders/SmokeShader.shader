@@ -29,6 +29,7 @@ Shader "Unlit/SmokeShader"
             int offset;
             int nparts;
             float particleSize;
+            float smokeparticleSize;
             int order;
             float4 fw;
 
@@ -62,11 +63,14 @@ Shader "Unlit/SmokeShader"
                 float3 up = normalize(cross(right, forward));
                 float3x3 rotationMatrix = float3x3(right, up, forward);
 
-                vert = float4(mul(v.vertex.xyz * particleSize,rotationMatrix),v.vertex.w) + float4(positionbuffer[id], 0);
+                o.pcolor = colorbuffer[id];
+                float scale = particleSize;
+                if((o.pcolor.x + o.pcolor.y + o.pcolor.z) == 0) scale = smokeparticleSize;
+                vert = float4(mul(v.vertex.xyz * scale,rotationMatrix),v.vertex.w) + float4(positionbuffer[id], 0);
                 
                 o.vertex = mul(UNITY_MATRIX_VP,vert);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.pcolor = colorbuffer[id];
+                
                 return o;
             }
 

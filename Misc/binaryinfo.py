@@ -1,7 +1,10 @@
 import numpy as np
 
 f = input('Enter file\n')
-a = np.fromfile(f,np.float16,-1)
+t = np.float16
+if f[-1] == '8':
+  t = np.uint8
+a = np.fromfile(f,t,-1)
 a = np.nan_to_num(a,0)
 vals, cou = np.unique(a, return_counts= True)
 print('VALUES')
