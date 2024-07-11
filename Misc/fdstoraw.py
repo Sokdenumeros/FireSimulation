@@ -4,6 +4,11 @@ import os
 from typing import Dict, Tuple, Literal, Union
 import math
 
+nptype = np.uint8
+extension = '.raw'
+if nptype == np.uint8:
+    extension = '.raw8'
+
 def extractMeshes(sim,fileName):
     with open(fileName, "w") as csvfile:
   
@@ -31,9 +36,10 @@ def extract_f32_data(*args):
     except:
         print('Directory exists already')
 
-    data, grid = to_global(data_element,return_coordinates=True,masked=True)
+    times = data_element.times[::1]
 
-    times = data_element.times
+    data, grid = to_global(data_element,times,return_coordinates=True,masked=True)
+
     data = np.transpose(data,(0,2,3,1))
     
     print('Writing to files')
@@ -44,16 +50,17 @@ def extract_f32_data(*args):
     for i, time in enumerate(times):
         t = round(time,2)
         flattened_data = data[i].flatten()
-        flattened_data.astype(np.uint8).tofile(name + '/' + f'T{time:07.2f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + '.raw8')
+        flattened_data.astype(nptype).tofile(name + '/' + f'T{time:07.2f}_.' + str(data.shape[1]) + '.' + str(data.shape[2]) + '.' + str(data.shape[3]) + extension)
     print('FINISHED')
 
-def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: bool = False) -> Union[np.ndarray, Tuple[np.ndarray, Dict[Literal['x', 'y', 'z'], np.ndarray]]]:
+def to_global(smk3d, timeslist, masked: bool = False, fill: float = 0, return_coordinates: bool = False) -> Union[np.ndarray, Tuple[np.ndarray, Dict[Literal['x', 'y', 'z'], np.ndarray]]]:
     if len(smk3d._subsmokes) == 0:
         if return_coordinates:
             return np.array([]), {d: np.array([]) for d in ('x', 'y', 'z')}
         else:
             return np.array([])
 
+    timesmask = np.isin(smk3d.times, timeslist)
     coord_min = {'x': math.inf, 'y': math.inf, 'z': math.inf}
     coord_max = {'x': -math.inf, 'y': -math.inf, 'z': -math.inf}
     for dim in ('x', 'y', 'z'):
@@ -88,11 +95,14 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
     minvals = []
     maxvals = []
     counter = 0
+    cachedata = []
     for i in smk3d._subsmokes.values():
         print(counter, end="\r")
-        counter = counter + 1
+        cachedata.append(i.data[timesmask].astype(nptype, order = 'C'))
         maxvals.append(i.data.max())
         minvals.append(i.data.min())
+        counter = counter + 1
+        i.clear_cache()
 
     if min(minvals) < 0:
         print('WARNING, min value below 0, consider using the fp16 version')
@@ -101,13 +111,14 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
         print('WARNING, max value above 255, consider using the fp16 version')
         print(max(maxvals))
 
-    grid = np.full((smk3d.n_t, steps['x'], steps['y'], steps['z']), np.nan, np.uint8)
+    grid = np.full((len(timeslist), steps['x'], steps['y'], steps['z']), np.nan, nptype)
 
     for i, subsmoke in enumerate(smk3d._subsmokes.values()):
-        subsmoke_data = subsmoke.data.astype(np.uint8, order = 'C')
+        subsmoke_data = cachedata[i]
         print('SUBSMOKE ' + str(i))
         if masked:
-            mask = subsmoke.mesh.get_obstruction_mask(smk3d.times).astype(np.uint8)
+            mask = subsmoke.mesh.get_obstruction_mask(smk3d.times)[timesmask]
+            subsmoke_data = np.where(mask, subsmoke_data, fill)
 
         start_idx = {dim: int(round((subsmoke.mesh.coordinates[dim][0] - coord_min[dim]) / step_sizes_min[dim])) for dim in ('x', 'y', 'z')}
         end_idx = {dim: int(round((subsmoke.mesh.coordinates[dim][-1] - coord_min[dim]) / step_sizes_min[dim])) for dim in ('x', 'y', 'z')}
@@ -121,13 +132,6 @@ def to_global(smk3d, masked: bool = False, fill: float = 0, return_coordinates: 
             n_repeat = max(int(round((subsmoke.mesh.coordinates[dim][1] - subsmoke.mesh.coordinates[dim][0]) /step_sizes_min[dim])), 1)
             if n_repeat > 1:
                 subsmoke_data = np.repeat(subsmoke_data, n_repeat, axis=axis + 1)
-                if masked:
-                    mask = np.repeat(mask, n_repeat, axis=axis + 1)
-
-            # If the slice should be masked, we set all cells at which an obstruction is in the
-            # simulation space to the fill value set by the user
-        if masked:
-            subsmoke_data = np.where(mask, subsmoke_data, fill)
 
         grid[:, start_idx['x']: end_idx['x'], start_idx['y']: end_idx['y'],
         start_idx['z']: end_idx['z']] = subsmoke_data[:, : end_idx['x'] - start_idx['x'], :end_idx['y'] - start_idx['y'], :end_idx['z'] - start_idx['z']]
