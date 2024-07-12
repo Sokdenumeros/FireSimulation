@@ -41,7 +41,7 @@ Finally, if any other errors occur, try using ```fdstoraw3.py``` instead, it is 
 
 If you had to increase the Virtual memory in the previous section, you can already go back to "Automatically manage paging file size for all drives".
 
-Run ```rawtoparticles.py```, it will ask for the smoke and heat directories. Similar to the previous section, you can manually write the path to each one or drag and drop the directories. The script will extract a random subsample of the data into the 'particles' and 'partData' directories.
+Run ```rawtoparticles.py```, it will ask for the smoke and heat directories (SOOTDENSITY and HRRPUV). Similar to the previous section, you can manually write the path to each one or drag and drop the directories. The script will extract a random subsample of the data into the 'particles' and 'partData' directories.
 
 ![imagen](https://github.com/Sokdenumeros/FireSimulation/assets/61268710/ed15f2fb-968d-4ced-8361-cecbfb6b5fc9)
 
