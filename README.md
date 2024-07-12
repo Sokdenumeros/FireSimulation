@@ -14,23 +14,34 @@ Clone the repository and open the Unity project from the Unity Hub
 Three steps are required to visualize a simulation. Two preprocessing steps using python scripts and finally, the visualization.
 
 ### Extracting data
-After cloning the repository, go into the Misc directory. From there, run the fdstoraw3.py script, it will then ask for a simulation directory. You can manually input the path to your simulation, but most consoles will also input the path to a file if you drag and drop it into the terminal window.
-![imagen](https://github.com/Sokdenumeros/FireSimulation/assets/61268710/127345ff-ab54-46df-b31d-86fe3b20f514)
-![imagen](https://github.com/Sokdenumeros/FireSimulation/assets/61268710/e1857e16-24ea-441e-a79a-9ca60a0f3c44)
+After cloning the repository, go into the Misc directory. From there, run the ```fdstoraw.py``` script, it will then ask for a simulation directory. You can manually input the path to your simulation, but most consoles will also input the path to a file if you drag and drop it into the terminal window.
 
-This should create two directories named SOOTDENSITY and HRPUV with many files in them. If the names of the directories do not match the information you wanted to extratct, make sure that the fields of the simulation being accessed in the last lines of the fdstoraw3.py script are the correct ones.
+![imagen](https://github.com/user-attachments/assets/bf5fd2ae-06c1-4ce5-b7a5-723db7a19aba)
+![imagen](https://github.com/user-attachments/assets/4909c748-025a-4400-8b04-45ba6ae93396)
 
-![imagen](https://github.com/Sokdenumeros/FireSimulation/assets/61268710/02ada54e-af94-460e-95f5-56193ba64e90)
+This should create a ```boundingBoxes.txt``` and two directories named SOOTDENSITY and HRRPUV with many files in them. If the names of the directories do not match the information you wanted to extratct, make sure that the fields of the simulation being accessed in the last lines of the ```fdstoraw.py``` script are the correct ones.
 
-If you get the following error message:
-numpy.core._exceptions._ArrayMemoryError: Unable to allocate 112. GiB for an array with shape (398, 641, 293, 201) and data type float16
-This means that your system does not have enough RAM to store the entire simulation. Try [increasing the Virtual Memory](https://support.esri.com/en-us/knowledge-base/increase-virtual-memory-beyond-the-recommended-maximum--000011346) to around 1.5x the ammount requested by the error. 112. GiB -> 150000 MB
+![imagen](https://github.com/user-attachments/assets/8ee13fa5-427a-408d-b59a-b6ba573fb379)
+
+If you get the following warning:
+
+```WARNING, max value above 255, consider using the fp16 version``` this means that not all values can be encoded in a uint8. If this happens, you can use fp16 encoding by changing ```nptype = np.uint8``` to ```nptype = np.float16```.
+
+If you get an error message similar to this one:
+
+```numpy.core._exceptions._ArrayMemoryError: Unable to allocate 112. GiB for an array with shape (398, 641, 293, 201) and data type float16```
+
+This means that your system does not have enough RAM to store the entire simulation. There are two things that can be done to alleviate this issue:
+- In ```fdstoraw.py```, select a subset of the time instants by changing the [slicing](https://docs.python.org/release/2.3.5/whatsnew/section-slices.html) in the following line: ```times = data_element.times[::1]```. Either increase the step if you can afford to lower the frequency of the data or run the script several times extracting only a small interval each time.
+- Try [increasing the Virtual Memory](https://support.esri.com/en-us/knowledge-base/increase-virtual-memory-beyond-the-recommended-maximum--000011346) to, for example, 1.5x the ammount requested by the error. 112. GiB -> 150000 MB
+
+Finally, if any other errors occur, try using ```fdstoraw3.py``` instead, it is much less optimized and will use way more memory and take way more time but it has been tested for longer and should be more stable.
 
 ### Randomly selecting particles
 
 If you had to increase the Virtual memory in the previous section, you can already go back to "Automatically manage paging file size for all drives".
 
-Run rawtoparticles.py, it will ask for the smoke and heat directories. Similar to the previous section, you can manually write the path to each one or drag and drop the directories. The script will extract a random subsample of the data into the 'particles' and 'partData' directories.
+Run ```rawtoparticles.py```, it will ask for the smoke and heat directories (SOOTDENSITY and HRRPUV). Similar to the previous section, you can manually write the path to each one or drag and drop the directories. The script will extract a random subsample of the data into the 'particles' and 'partData' directories.
 
 ![imagen](https://github.com/Sokdenumeros/FireSimulation/assets/61268710/ed15f2fb-968d-4ced-8361-cecbfb6b5fc9)
 
@@ -39,22 +50,24 @@ In the first lines of the script, it is possible to adjust four parameters:
 |:---:|----------|
 | nparticles  | Maximum number of particles that can be extracted from a single time instant.|
 | opacityThreshold | Particles with a SootDensity below the threshold will be excluded from the list of potential particles to be selected.|
-| heatThreshold | Particles with a HRPUV below the threshold will be excluded from the list of potential fire particles to be selected. |
-| smokeparticlesratio | Max fraction from the total number of nparticles that can be smoke particles (soot > opacityThreshold & HRPUV < heatThreshold) |
+| heatThreshold | Particles with a HRRPUV below the threshold will be excluded from the list of potential fire particles to be selected. |
+| smokeparticlesratio | Max fraction from the total number of nparticles that can be smoke particles (soot > opacityThreshold & HRRPUV < heatThreshold) |
 
 ## Visualization
 In order to visualize a simulation, it first needs to be preprocessed as explained in the previous section.
 
 Open the desired Unity scene, 2D_template or VR_template. In both you will see a SimulationManager object with one SimulationManager script, two ByteLoader scripts and a DisableFrustrumCulling script.
 
-![SimManager](https://github.com/Sokdenumeros/FireSimulation/assets/61268710/3c0df5ef-1bd6-45af-a8eb-eef9d90eecc3)
+![SimManager](https://github.com/user-attachments/assets/24fc062a-8eb6-46ae-9ddb-abc03bf7d35b)
+
 
 **SimulationManager parameters:**
 | Parameter name |  Description  |
 |:---:|----------|
-| Gridx/y/z File  | Path to the grid files, those are generated inside each of the directories generated by fdstoraw3.py |
-| nparticles | Max number of particles that the visualization will display per time step (should match the nparticles value from rawtoparticles.py) |
-| particle size | Scale factor to apply to the particle. Bigger particles will result in worse performance. |
+| Gridx/y/z File  | Path to the grid files, those are generated inside each of the directories generated by ```fdstoraw.py``` |
+| nparticles | Max number of particles that the visualization will display per time step (should match the nparticles value from ```rawtoparticles.py```) |
+| particle size | Scale factor to apply to the non-black particles. Bigger particles will result in worse performance. |
+| smokeparticle size | Scale factor to apply to the black particles.|
 | Opacityfactor | Scalar factor that multiplies the final opacity of the particles. |
 | Tfmin | min control point for the HRRPUV transfer function, below this value all particles will be black. |
 | Tfmin | max control point for the HRRPUV transfer function, above this value all particles will be orange. |
@@ -67,6 +80,11 @@ Open the desired Unity scene, 2D_template or VR_template. In both you will see a
 | timestep | Frequency in which new data will be loaded in seconds. Performance should be fine at least until 0.05 seconds but make sure to use an SSD|
 
 Once all the parameters have been configured, click the play button to run it.
+
+Additionally, you can add a meshloader script component and add the path to the ```boundingBoxes.txt``` created by ```fdstoraw.py``` to visualize an approximation of the meshes in the simulation.
+
+![imagen](https://github.com/user-attachments/assets/af4813f3-1be3-44c9-9f28-6daa8dfac474)
+
 
 ## VR visualization
 In order to visualize it in virtual reality, connect the headset to the computer using meta quest link or similar depending on the headset model/manufacturer.
@@ -82,4 +100,4 @@ The following controls have been implemented for the Meta Quest 3, different hea
 | Left Lateral Trigger | Move downwards |
 
 ## Extra
-simulationinfo.py and binaryinfo.py scripts in the Misc directory can be used to quickly check details of an original fds simulation directory or a .raw soot or hrpuv file. This can be useful to see which data fields are stored in a simulation and in which order, or to get an idea of how many cells in the grid have non-zero soot values.
+simulationinfo.py and binaryinfo.py scripts in the Misc directory can be used to quickly check details of an original fds simulation directory or a .raw soot or hrrpuv file. This can be useful to see which data fields are stored in a simulation and in which order, or to get an idea of how many cells in the grid have non-zero soot values.
