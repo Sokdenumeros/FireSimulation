@@ -1,4 +1,6 @@
 # VR Fire Visualization
+<img src="https://github.com/user-attachments/assets/282f17e2-0997-4b87-a488-3ba7d0368310" width="47%"/>
+<img src="https://github.com/user-attachments/assets/f1f3b226-d232-4aa1-a7a4-6d7ca5bf12db" width="47%"/>
 
 ## Prerequisites
 Newer or older versions of the listed prerequisites may also work.
